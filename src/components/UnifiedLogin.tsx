@@ -340,7 +340,7 @@ export default function UnifiedLogin({ onLoginSuccess, mockUsers, onUpdateUserPa
             </div>
 
             <div className="text-center space-y-2 mb-6 pt-2">
-              <h2 className="text-lg font-bold text-white">Güvenli SaaS Aktivasyonu</h2>
+              <h2 className="text-lg font-bold text-white">Güvenli Hesap Aktivasyonu</h2>
               <p className="text-xs text-slate-400 leading-relaxed">
                 Hesabınız geçici bir şifreyle oluşturulduğu için ilk kullanımda **kalıcı ve güvenli şifre belirlemeniz zorunludur**. Şifrenizi değiştirmeden sisteme erişemezsiniz.
               </p>
@@ -514,7 +514,7 @@ export default function UnifiedLogin({ onLoginSuccess, mockUsers, onUpdateUserPa
                   <p className="text-slate-400 text-[10px] italic">{preset.user}</p>
                 </div>
 
-                 <div className="mt-2.5 font-mono text-[9px] text-slate-500 space-y-0.5 border-t border-slate-800/60 pt-2 font-bold select-text">
+                <div className="mt-2.5 font-mono text-[9px] text-slate-500 space-y-0.5 border-t border-slate-800/60 pt-2 font-bold select-text">
                   <div className="truncate text-slate-400" title={preset.email}>E: {preset.email}</div>
                   <div className="text-slate-350">Ş: {displayPass}</div>
                 </div>

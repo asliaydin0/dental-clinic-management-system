@@ -1,6 +1,6 @@
 export type ToothStatus = 'healthy' | 'risk' | 'treatment' | 'completed';
 
-export type TreatmentType = 'none' | 'dolgu' | 'kanal' | 'temizlik' | 'cekme' | 'muayene';
+export type TreatmentType = string;
 
 export interface ToothDetails {
   id: number; // 1-32 FDI tooth numbering system

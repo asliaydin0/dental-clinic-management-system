@@ -74,9 +74,8 @@ class TreatmentBLL:
         tooth_name, tooth_zone = TreatmentBLL.get_tooth_metadata(tooth_num)
 
         treatment_type = treatment_data.get("treatment_type", "").strip()
-        valid_types = {'none', 'dolgu', 'kanal', 'temizlik', 'cekme', 'muayene'}
-        if treatment_type not in valid_types:
-            raise ValueError(f"İş Kuralı İhlali: Geçersiz tedavi tipi. Şunlardan biri olmalı: {', '.join(valid_types)}")
+        if not treatment_type:
+            raise ValueError("İş Kuralı İhlali: Tedavi/müdahale türü belirtilmelidir.")
 
         # 2. Check if the tooth record exists in patient_teeth
         existing_tooth = TreatmentDAL.get_patient_tooth(patient_id, tooth_num)

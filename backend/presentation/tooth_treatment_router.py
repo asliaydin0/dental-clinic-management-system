@@ -8,7 +8,7 @@ router = APIRouter(prefix="/tooth_treatments", tags=["Tooth Treatments API"])
 class ToothTreatmentCreateSchema(BaseModel):
     patient_id: str
     tooth_num: int = Field(..., ge=11, le=48)
-    treatment_type: str = Field(..., description="dolgu, kanal, temizlik, cekme, muayene")
+    treatment_type: str = Field(..., description="Klinik tedavi / müdahale türü")
     treatment_date: Optional[str] = None
     description: Optional[str] = None
 

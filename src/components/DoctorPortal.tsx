@@ -841,7 +841,7 @@ export default function DoctorPortal({
   };
 
   // İşlem Kayıtları
-  const [newTreatmentType, setNewTreatmentType] = useState<TreatmentType>('dolgu');
+  const [newTreatmentType, setNewTreatmentType] = useState<TreatmentType>('İlk Muayene ve Konsültasyon');
   const [newTreatmentDesc, setNewTreatmentDesc] = useState<string>('');
 
   // Saniye Kronometre (Hekim Çalışma Süresi)
@@ -2365,14 +2365,47 @@ export default function DoctorPortal({
                       <label className={`text-[10px] font-black uppercase ${textTitle} block mb-1`}>Tedavi / Müdahale Türü</label>
                       <select
                         value={newTreatmentType}
-                        onChange={e => setNewTreatmentType(e.target.value as TreatmentType)}
-                        className={`w-full text-xs font-bold p-3 rounded-xl focus:outline-none ${bgSelect}`}
+                        onChange={e => setNewTreatmentType(e.target.value)}
+                        className={`w-full text-xs font-bold p-3 rounded-xl focus:outline-none ${bgSelect} border border-slate-700/30`}
                       >
-                        <option value="muayene">Rutin Klinik Muayene</option>
-                        <option value="dolgu">Estetik Kompozit Dolgu</option>
-                        <option value="kanal">Endodontik Kanal Tedavisi</option>
-                        <option value="temizlik">Detertraj (Diş Taşı Temizliği)</option>
-                        <option value="cekme">Cerrahi Diş Çekimi / Gömülü Diş</option>
+                        <optgroup label="Teşhis ve Radyoloji">
+                          <option value="İlk Muayene ve Konsültasyon">İlk Muayene ve Konsültasyon</option>
+                          <option value="Panoramik / Periapikal Röntgen">Panoramik / Periapikal Röntgen</option>
+                        </optgroup>
+                        <optgroup label="Restoratif Diş Tedavisi">
+                          <option value="Estetik Kompozit Dolgu (Tek Yüzlü / İki Yüzlü)">Estetik Kompozit Dolgu (Tek Yüzlü / İki Yüzlü)</option>
+                          <option value="İnley / Onley Porselen Restorasyon">İnley / Onley Porselen Restorasyon</option>
+                          <option value="Kuafaj (Pulpa Kaplaması)">Kuafaj (Pulpa Kaplaması)</option>
+                        </optgroup>
+                        <optgroup label="Endodonti (Kanal Tedavisi)">
+                          <option value="Kanal Tedavisi (Tek Kanal)">Kanal Tedavisi (Tek Kanal)</option>
+                          <option value="Kanal Tedavisi (Çok Kanal)">Kanal Tedavisi (Çok Kanal)</option>
+                          <option value="Kanal Tedavisi Yenileme (Retreatment)">Kanal Tedavisi Yenileme (Retreatment)</option>
+                          <option value="Amputasyon">Amputasyon</option>
+                        </optgroup>
+                        <optgroup label="Periodontoloji (Diş Eti Tedavisi)">
+                          <option value="Detertraj (Diş Taşı Temizliği)">Detertraj (Diş Taşı Temizliği)</option>
+                          <option value="Subgingival Küretaj">Subgingival Küretaj</option>
+                          <option value="Flap Operasyonu">Flap Operasyonu</option>
+                        </optgroup>
+                        <optgroup label="Ağız, Diş ve Çene Cerrahisi">
+                          <option value="Normal Diş Çekimi">Normal Diş Çekimi</option>
+                          <option value="Komplikasyonlu Diş Çekimi">Komplikasyonlu Diş Çekimi</option>
+                          <option value="Gömülü 20 Yaş Diş Çekimi">Gömülü 20 Yaş Diş Çekimi</option>
+                          <option value="Dental İmplant Operasyonu">Dental İmplant Operasyonu</option>
+                          <option value="Sinüs Lifting / Kemik Grefti">Sinüs Lifting / Kemik Grefti</option>
+                        </optgroup>
+                        <optgroup label="Protetik Diş Tedavisi (Protez)">
+                          <option value="Zirkonyum / Porselen Kuron">Zirkonyum / Porselen Kuron</option>
+                          <option value="Yaprak Porselen (Lamine / Veneer)">Yaprak Porselen (Lamine / Veneer)</option>
+                          <option value="Hareketli Tam / Bölümlü Protez">Hareketli Tam / Bölümlü Protez</option>
+                          <option value="İmplant Üstü Protez">İmplant Üstü Protez</option>
+                        </optgroup>
+                        <optgroup label="Pedodonti ve Koruyucu (Çocuk)">
+                          <option value="Fissür Örtücü">Fissür Örtücü</option>
+                          <option value="Flor Uygulaması">Flor Uygulaması</option>
+                          <option value="Süt Dişi Çekimi / Yer Tutucu">Süt Dişi Çekimi / Yer Tutucu</option>
+                        </optgroup>
                       </select>
                     </div>
 
