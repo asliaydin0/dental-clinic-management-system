@@ -8,6 +8,8 @@ from presentation.appointment_router import router as appointment_router
 from presentation.treatment_router import router as treatment_router
 from presentation.user_router import router as user_router
 from presentation.brushing_router import router as brushing_router
+from presentation.tooth_treatment_router import router as tooth_treatment_router
+from presentation.treatment_stage_router import router as treatment_stage_router
 
 # Initialize FastAPI App (Presentation Layer Entry Point)
 app = FastAPI(
@@ -33,6 +35,8 @@ app.include_router(appointment_router)
 app.include_router(treatment_router)
 app.include_router(user_router)
 app.include_router(brushing_router)
+app.include_router(tooth_treatment_router)
+app.include_router(treatment_stage_router)
 
 @app.on_event("startup")
 def startup_event():

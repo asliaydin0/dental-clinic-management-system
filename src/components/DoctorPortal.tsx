@@ -395,7 +395,7 @@ export default function DoctorPortal({
   const [newStageStatus, setNewStageStatus] = useState<'done' | 'active' | 'upcoming'>('upcoming');
   const [newStageNotes, setNewStageNotes] = useState('');
 
-  const handleAddStageToTimeline = () => {
+  const handleAddStageToTimeline = async () => {
     if (!activePatient) {
       toast.error("Lütfen önce bir hasta seçiniz.");
       return;
@@ -407,71 +407,61 @@ export default function DoctorPortal({
 
     const todayDateStr = newStageDate || new Date().toISOString().split('T')[0];
 
-    const newStage = {
-      id: 'step_' + Date.now(),
-      title: newStageTitle,
-      date: todayDateStr,
-      status: newStageStatus,
-      notes: newStageNotes
-    };
+    appendLog('Business Logic (BLL)', 'BL_AddTimelineStage()', `Hasta ID: ${activePatient.id} için yeni tedavi aşaması ekleniyor.`);
 
-    const currentTimeline = activePatient.treatmentTimeline || [
-      { id: 't-1', title: 'İlk Muayene ve Röntgen', date: '2026-05-10', status: 'done', notes: 'Genel ağız muayenesi ve panoramik röntgen çekimi tamamlandı.' },
-      { id: 't-2', title: 'Derin Diş Taşı Temizliği', date: '2026-05-15', status: 'done', notes: 'Alt ve üst çene tartar temizliği ile hassasiyet kontrolü yapıldı.' },
-      { id: 't-3', title: '26 Nolu Diş Kanal Tedavisi', date: '2026-05-25', status: 'active', notes: 'Hekim Samantha Lee tarafından kanal dolgusu ve geçici kapatma yapıldı.' },
-      { id: 't-4', title: 'Kuron (Kaplama) Restorasyonu', date: '2026-05-30', status: 'upcoming', notes: 'Kalıcı estetik zirkonyum kaplama ölçüsü alınacak.' }
-    ];
-
-    const updatedTimeline = [...currentTimeline, newStage];
-
-    const updated = patientsList.map(p => {
-      if (p.id === activePatient.id) {
-        return {
-          ...p,
-          treatmentTimeline: updatedTimeline
-        };
+    try {
+      const res = await fetch('http://localhost:8000/treatment_stages/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          patient_id: activePatient.id,
+          title: newStageTitle,
+          stage_date: todayDateStr,
+          status: newStageStatus,
+          notes: newStageNotes
+        })
+      });
+      if (res.ok) {
+        appendLog('Data Access (DAL)', 'sp_InsertTimelineStage [SUCCESS]', `Hasta ID: ${activePatient.id} için yeni tedavi aşaması eklendi.`);
+        toast.success(`'${newStageTitle}' aşaması, '${activePatient.name}' adlı hastanın tedavi yol haritasına başarıyla eklendi!`);
+        setNewStageTitle('');
+        setNewStageNotes('');
+        setNewStageStatus('upcoming');
+        // Re-fetch stages immediately
+        await fetchTreatmentStages(activePatient.id);
+      } else {
+        const errData = await res.json();
+        toast.error(`Tedavi aşaması eklenemedi: ${errData.detail || 'Bilinmeyen Hata'}`);
       }
-      return p;
-    });
-
-    setPatientsList(updated);
-    localStorage.setItem('dentsai_patients_v2', JSON.stringify(updated));
-    appendLog('Data Access (DAL)', 'sp_InsertTimelineStage [SUCCESS]', `Hasta ID: ${activePatient.id} için yeni tedavi aşaması eklendi.`);
-    toast.success(`'${newStageTitle}' aşaması, '${activePatient.name}' adlı hastanın tedavi yol haritasına başarıyla eklendi!`);
-
-    setNewStageTitle('');
-    setNewStageNotes('');
-    setNewStageStatus('upcoming');
+    } catch (err) {
+      console.error("POST stage error:", err);
+      toast.error("Bir ağ hatası oluştu.");
+    }
   };
 
-  const handleDeleteStageFromTimeline = (id: string) => {
+  const handleDeleteStageFromTimeline = async (id: number) => {
     if (!activePatient) {
       toast.error("Lütfen önce bir hasta seçiniz.");
       return;
     }
-    const currentTimeline = activePatient.treatmentTimeline || [
-      { id: 't-1', title: 'İlk Muayene ve Röntgen', date: '2026-05-10', status: 'done', notes: 'Genel ağız muayenesi ve panoramik röntgen çekimi tamamlandı.' },
-      { id: 't-2', title: 'Derin Diş Taşı Temizliği', date: '2026-05-15', status: 'done', notes: 'Alt ve üst çene tartar temizliği ile hassasiyet kontrolü yapıldı.' },
-      { id: 't-3', title: '26 Nolu Diş Kanal Tedavisi', date: '2026-05-25', status: 'active', notes: 'Hekim Samantha Lee tarafından kanal dolgusu ve geçici kapatma yapıldı.' },
-      { id: 't-4', title: 'Kuron (Kaplama) Restorasyonu', date: '2026-05-30', status: 'upcoming', notes: 'Kalıcı estetik zirkonyum kaplama ölçüsü alınacak.' }
-    ];
 
-    const updatedTimeline = currentTimeline.filter((t: any) => t.id !== id);
-
-    const updated = patientsList.map(p => {
-      if (p.id === activePatient.id) {
-        return {
-          ...p,
-          treatmentTimeline: updatedTimeline
-        };
+    try {
+      const res = await fetch(`http://localhost:8000/treatment_stages/${id}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        appendLog('Data Access (DAL)', 'sp_DeleteTimelineStage [SUCCESS]', `Hasta ID: ${activePatient.id} için tedavi aşaması silindi.`);
+        toast.success("Tedavi aşaması yol haritasından başarıyla kaldırıldı!");
+        // Re-fetch stages immediately
+        await fetchTreatmentStages(activePatient.id);
+      } else {
+        const errData = await res.json();
+        toast.error(`Tedavi aşaması silinemedi: ${errData.detail || 'Bilinmeyen Hata'}`);
       }
-      return p;
-    });
-
-    setPatientsList(updated);
-    localStorage.setItem('dentsai_patients_v2', JSON.stringify(updated));
-    appendLog('Data Access (DAL)', 'sp_DeleteTimelineStage [SUCCESS]', `Hasta ID: ${activePatient.id} için tedavi aşaması silindi.`);
-    toast.success("Tedavi aşaması yol haritasından başarıyla kaldırıldı!");
+    } catch (err) {
+      console.error("DELETE stage error:", err);
+      toast.error("Bir ağ hatası oluştu.");
+    }
   };
 
   // BLL: Hasta Hesabı Aktifleştirme İşlemi
@@ -728,6 +718,77 @@ export default function DoctorPortal({
   const [selectedToothId, setSelectedToothId] = useState<number>(36);
   const [activeNotes, setActiveNotes] = useState<string>('');
   const [activeStatus, setActiveStatus] = useState<ToothStatus>('healthy');
+  const [activeDiagnosis, setActiveDiagnosis] = useState<string>('Sağlıklı / Anomalik Bulgu Yok');
+
+  // Dynamic Backend States
+  const [dbToothTreatments, setDbToothTreatments] = useState<any[]>([]);
+  const [dbTreatmentStages, setDbTreatmentStages] = useState<any[]>([]);
+
+  const fetchPatientTeethData = async (patientId: string) => {
+    try {
+      const teethRes = await fetch(`http://localhost:8000/patients/${patientId}/teeth`);
+      if (teethRes.ok) {
+        const dbTeeth = await teethRes.json();
+        const teethData = SHAPE_TEETH_COORDS.map(tc => {
+          const dbTooth = dbTeeth.find((t: any) => t.tooth_num === tc.id);
+          return {
+            id: tc.id,
+            name: tc.name,
+            zone: tc.zone,
+            status: dbTooth ? dbTooth.status : 'healthy',
+            notes: dbTooth ? dbTooth.notes : '',
+            treatments: []
+          };
+        });
+        updatePatientTeeth(teethData);
+      }
+    } catch (err) {
+      console.error("Hasta diş verileri çekilemedi:", err);
+    }
+  };
+
+  const fetchToothTreatments = async (patientId: string) => {
+    try {
+      const res = await fetch(`http://localhost:8000/tooth_treatments/${patientId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setDbToothTreatments(data);
+      }
+    } catch (err) {
+      console.error("Diş işlem geçmişi çekilemedi:", err);
+    }
+  };
+
+  const fetchTreatmentStages = async (patientId: string) => {
+    try {
+      const res = await fetch(`http://localhost:8000/treatment_stages/${patientId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setDbTreatmentStages(data);
+      }
+    } catch (err) {
+      console.error("Tedavi aşamaları çekilemedi:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (activePatient?.id) {
+      fetchPatientTeethData(activePatient.id);
+      fetchToothTreatments(activePatient.id);
+      fetchTreatmentStages(activePatient.id);
+    }
+  }, [activePatient?.id]);
+
+  const DIAGNOSIS_STATUS_MAP: { [key: string]: ToothStatus } = {
+    'Sağlıklı / Anomalik Bulgu Yok': 'healthy',
+    'Başlangıç Çürüğü (Mine)': 'risk',
+    'Derin Kavite (Dentin Çürüğü)': 'risk',
+    'Kırık / Fraktür': 'risk',
+    'Kök Kanal İltihabı': 'treatment',
+    'Gömülü Diş': 'treatment',
+    'Kuron / Köprü Restorasyonu': 'completed',
+    'İmplant': 'completed',
+  };
 
   // İşlem Kayıtları
   const [newTreatmentType, setNewTreatmentType] = useState<TreatmentType>('dolgu');
@@ -766,9 +827,20 @@ export default function DoctorPortal({
   };
 
   useEffect(() => {
-    setActiveNotes(selectedTooth.notes || '');
+    const notesStr = selectedTooth.notes || '';
+    const match = notesStr.match(/^\[Teşhis:\s*([^\]]+)\]\s*(.*)$/s);
+    if (match) {
+      setActiveDiagnosis(match[1]);
+      setActiveNotes(match[2]);
+    } else {
+      if (selectedTooth.status === 'healthy') setActiveDiagnosis('Sağlıklı / Anomalik Bulgu Yok');
+      else if (selectedTooth.status === 'risk') setActiveDiagnosis('Başlangıç Çürüğü (Mine)');
+      else if (selectedTooth.status === 'treatment') setActiveDiagnosis('Kök Kanal İltihabı');
+      else if (selectedTooth.status === 'completed') setActiveDiagnosis('Kuron / Köprü Restorasyonu');
+      setActiveNotes(notesStr);
+    }
     setActiveStatus(selectedTooth.status);
-  }, [selectedToothId]);
+  }, [selectedToothId, selectedTooth.status, selectedTooth.notes]);
 
   // Stopwatch interval
   useEffect(() => {
@@ -1014,27 +1086,47 @@ export default function DoctorPortal({
   };
 
   // Save Tooth Status Updates
-  const handleSaveToothNotes = () => {
+  const handleSaveToothNotes = async () => {
+    if (!activePatient) {
+      toast.error("Lütfen önce bir hasta seçiniz.");
+      return;
+    }
     appendLog('Business Logic (BLL)', 'BL_UpdateToothClinicalDetails()', `Diş #${selectedToothId} klinik not güncellemesi.`);
 
-    const updated = patientTeeth.map(tooth => {
-      if (tooth.id === selectedToothId) {
-        return {
-          ...tooth,
-          notes: activeNotes,
-          status: activeStatus
-        };
-      }
-      return tooth;
-    });
+    const mappedStatus = DIAGNOSIS_STATUS_MAP[activeDiagnosis] || 'healthy';
+    const structuredNotes = `[Teşhis: ${activeDiagnosis}] ${activeNotes}`;
 
-    updatePatientTeeth(updated);
-    appendLog('Data Access (DAL)', 'sp_UpdateToothStatus [SUCCESS]', `Diş #${selectedToothId} durum değeri = '${activeStatus}' olarak değiştirildi.`);
-    toast.success(`Diş #${selectedToothId} klinik tanısı ve notu başarıyla güncellendi!`);
+    try {
+      const res = await fetch(`http://localhost:8000/patients/${activePatient.id}/teeth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tooth_num: selectedToothId,
+          status: mappedStatus,
+          notes: structuredNotes
+        })
+      });
+      if (res.ok) {
+        appendLog('Data Access (DAL)', 'sp_UpdateToothStatus [SUCCESS]', `Diş #${selectedToothId} durum değeri = '${mappedStatus}' olarak değiştirildi.`);
+        toast.success(`Diş #${selectedToothId} klinik tanısı ve notu başarıyla güncellendi!`);
+        // Re-fetch teeth status immediately
+        await fetchPatientTeethData(activePatient.id);
+      } else {
+        const errData = await res.json();
+        toast.error(`Diş bilgileri güncellenemedi: ${errData.detail || 'Bilinmeyen Hata'}`);
+      }
+    } catch (err) {
+      console.error("POST tooth update error:", err);
+      toast.error("Bir ağ hatası oluştu.");
+    }
   };
 
   // Save Operation Treatment Record (İşlem kaydı ekleme)
-  const handleAddTreatmentRecord = () => {
+  const handleAddTreatmentRecord = async () => {
+    if (!activePatient) {
+      toast.error("Lütfen önce bir hasta seçiniz.");
+      return;
+    }
     if (!newTreatmentDesc.trim()) {
       toast.error("Lütfen yapılacak müdahale için bir klinik açıklama girin.");
       return;
@@ -1042,31 +1134,33 @@ export default function DoctorPortal({
 
     appendLog('Business Logic (BLL)', 'BL_AddToothTreatmentRecord()', `Diş #${selectedToothId} için '${newTreatmentType}' protokolü kaydı başlatılıyor.`);
 
-    const todayDateStr = new Date().toISOString().split('T')[0];
-
-    const updated = patientTeeth.map(tooth => {
-      if (tooth.id === selectedToothId) {
-        const tList = tooth.treatments || [];
-        return {
-          ...tooth,
-          status: 'completed' as const, // Yapılınca otomatik tamamlandıya çeker
-          treatments: [
-            ...tList,
-            {
-              type: newTreatmentType,
-              date: todayDateStr,
-              description: newTreatmentDesc
-            }
-          ]
-        };
+    try {
+      const res = await fetch('http://localhost:8000/tooth_treatments/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          patient_id: activePatient.id,
+          tooth_num: selectedToothId,
+          treatment_type: newTreatmentType,
+          treatment_date: new Date().toISOString().split('T')[0],
+          description: newTreatmentDesc
+        })
+      });
+      if (res.ok) {
+        appendLog('Data Access (DAL)', 'sp_AddTreatmentRecord [SUCCESS]', `Diş #${selectedToothId} işlem geçmişine yeni kayıt eklendi.`);
+        toast.success(`Müdahale kaydı başarıyla eklendi ve Diş #${selectedToothId} durumu 'Tamamlanmış Tedavi' olarak güncellendi.`);
+        setNewTreatmentDesc('');
+        // Re-fetch treatments and teeth status to update UI immediately
+        await fetchToothTreatments(activePatient.id);
+        await fetchPatientTeethData(activePatient.id);
+      } else {
+        const errData = await res.json();
+        toast.error(`Müdahale kaydı eklenemedi: ${errData.detail || 'Bilinmeyen Hata'}`);
       }
-      return tooth;
-    });
-
-    updatePatientTeeth(updated);
-    setNewTreatmentDesc('');
-    appendLog('Data Access (DAL)', 'sp_AddTreatmentRecord [SUCCESS]', `Diş #${selectedToothId} işlem geçmişine yeni kayıt eklendi. Durum='completed'`);
-    toast.success(`Müdahale kaydı başarıyla eklendi ve Diş #${selectedToothId} durumu 'Tamamlanmış Tedavi' olarak güncellendi.`);
+    } catch (err) {
+      console.error("POST treatment error:", err);
+      toast.error("Bir ağ hatası oluştu.");
+    }
   };
 
   // AI Chat Assistant Send
@@ -1900,88 +1994,178 @@ export default function DoctorPortal({
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
                 {/* Sol: İnteraktif Çene Anatomisi Görseli (32 Diş) */}
-                <div className={`${bgCard} border rounded-2xl p-5 lg:col-span-7 flex flex-col items-center space-y-4`}>
+                <div className={`${bgCard} border rounded-2xl p-5 lg:col-span-7 flex flex-col items-center space-y-4 overflow-hidden`}>
 
                   <div className="w-full border-b border-slate-700/20 pb-3 flex items-center justify-between">
                     <div>
-                      <h3 className={`text-xs font-black tracking-widest uppercase ${textTitle}`}>İNTERAKTİF DIŞ SAĞLIĞI & TEŞHİS HARİTASI (FDI)</h3>
+                      <h3 className={`text-xs font-black tracking-widest uppercase ${textTitle}`}>ANATOMİK ODONTOGRAM DIŞ ŞEMASI (FDI)</h3>
                       <p className={`text-[10px] font-mono ${textMuted}`}>Klinik dişlere tıklayarak lezyon, çürük ve tedavi durumunu tanımlayın</p>
                     </div>
                     <span className="text-[10px] font-bold text-indigo-400 font-mono">AKTİF: {activePatient.name}</span>
                   </div>
 
-                  <div className={`relative w-[340px] h-[340px] rounded-full flex items-center justify-center border ${borderLine} ${isDark ? 'bg-[#060a12]' : 'bg-slate-50'}`}>
+                  {(() => {
+                    const getToothSVGPath = (id: number, isUpper: boolean) => {
+                      const digit = id % 10;
+                      if (digit >= 6) {
+                        return isUpper
+                          ? "M 6,5 C 6,2 10,2 17,2 C 24,2 28,2 28,5 C 31,10 32,20 30,36 C 28,42 22,44 17,44 C 12,44 6,42 4,36 C 2,20 3,10 6,5 Z"
+                          : "M 6,43 C 6,46 10,46 17,46 C 24,46 28,46 28,43 C 31,38 32,28 30,12 C 28,6 22,4 17,4 C 12,4 6,6 4,12 C 2,28 3,38 6,43 Z";
+                      }
+                      if (digit === 4 || digit === 5) {
+                        return isUpper
+                          ? "M 7,6 C 9,3 15,3 15,3 C 15,3 21,3 23,6 C 25,12 26,22 24,36 C 22,41 18,43 15,43 C 12,43 8,41 6,36 C 4,22 5,12 7,6 Z"
+                          : "M 7,42 C 9,45 15,45 15,45 C 15,45 21,45 23,42 C 25,36 26,26 24,12 C 22,7 18,5 15,5 C 12,5 8,7 6,12 C 4,26 5,36 7,42 Z";
+                      }
+                      if (digit === 3) {
+                        return isUpper
+                          ? "M 13,2 C 18,2 23,10 23,18 C 23,28 21,36 19,42 C 18,44 13,45 13,45 C 13,45 8,44 7,42 C 5,36 3,28 3,18 C 3,10 8,2 13,2 Z"
+                          : "M 13,46 C 18,46 23,38 23,30 C 23,20 21,12 19,6 C 18,4 13,3 13,3 C 13,3 8,4 7,6 C 5,12 3,20 3,30 C 3,38 8,46 13,46 Z";
+                      }
+                      return isUpper
+                        ? "M 6,5 L 20,5 C 22,8 21,24 19,38 C 19,40 16,41 13,41 C 10,41 7,40 7,38 C 5,24 4,8 6,5 Z"
+                        : "M 6,43 L 20,43 C 22,40 21,24 19,10 C 19,8 16,7 13,7 C 10,7 7,8 7,10 C 5,24 4,40 6,43 Z";
+                    };
 
-                    {/* Üst / Alt Çene Bölgeleri Yazıları */}
-                    <div className="absolute top-10 text-center pointer-events-none">
-                      <span className="text-[8px] font-black text-slate-500 tracking-widest uppercase block">ÜST PARS (MAXILLA)</span>
-                    </div>
+                    const renderOdontogramTooth = (id: number, isUpper: boolean) => {
+                      const toothInfo = patientTeeth.find(t => t.id === id) || { status: 'healthy' as ToothStatus, name: 'Tanımsız', notes: '' };
+                      const isFocused = selectedToothId === id;
+                      const digit = id % 10;
+                      
+                      let w = 20;
+                      let h = 44;
+                      if (digit >= 6) { w = 32; h = 48; }
+                      else if (digit === 4 || digit === 5) { w = 26; h = 46; }
+                      else if (digit === 3) { w = 22; h = 46; }
 
-                    <div className="absolute bottom-10 text-center pointer-events-none">
-                      <span className="text-[8px] font-black text-slate-500 tracking-widest uppercase block">ALT PARS (MANDIBULA)</span>
-                    </div>
-
-                    {/* Çene Bölücü Grid Çizgileri */}
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
-                      <div className="w-full h-[1px] border-t border-dashed border-indigo-400"></div>
-                      <div className="h-full w-[1px] border-l border-dashed border-indigo-400 absolute"></div>
-                    </div>
-
-                    {/* Diş Elemanlarının Anatomik Seçimi */}
-                    {SHAPE_TEETH_COORDS.map((tc) => {
-                      const toothInfo = patientTeeth.find(t => t.id === tc.id) || { status: 'healthy' };
-                      const isFocused = selectedToothId === tc.id;
-
-                      let toothColor = 'bg-emerald-500 text-slate-950 border-emerald-400';
+                      let fillClass = 'fill-emerald-500';
+                      let animateClass = '';
                       if (toothInfo.status === 'risk') {
-                        toothColor = 'bg-rose-500 text-white border-rose-300 shadow-[0_0_8px_rgba(239,68,68,0.5)] animate-pulse';
+                        fillClass = 'fill-rose-500';
+                        animateClass = 'animate-pulse';
                       } else if (toothInfo.status === 'treatment') {
-                        toothColor = 'bg-amber-500 text-slate-950 border-amber-300';
+                        fillClass = 'fill-amber-500';
                       } else if (toothInfo.status === 'completed') {
-                        toothColor = 'bg-indigo-500 text-white border-indigo-300';
+                        fillClass = 'fill-indigo-500';
                       }
 
-                      return (
-                        <button
-                          key={tc.id}
-                          onClick={() => {
-                            setSelectedToothId(tc.id);
-                            appendLog('Presentation (UI)', 'Diş Seçildi', `Ağız haritasından Diş #${tc.id} (${tc.name}) seçildi.`);
-                          }}
-                          style={{
-                            position: 'absolute',
-                            left: `${tc.x}px`,
-                            top: `${tc.y}px`,
-                            transform: 'translate(-50%, -50%)'
-                          }}
-                          className={`h-7 w-7 rounded-lg border-2 flex items-center justify-center text-[10px] font-black font-mono transition-all cursor-pointer ${toothColor} ${isFocused ? 'ring-4 ring-indigo-500 scale-120 z-10' : 'hover:scale-110'
-                            }`}
-                          title={`${tc.id} - ${tc.name}`}
-                        >
-                          {tc.id}
-                        </button>
-                      );
-                    })}
+                      const path = getToothSVGPath(id, isUpper);
 
-                  </div>
+                      return (
+                        <div key={id} className="flex flex-col items-center space-y-1">
+                          {isUpper && (
+                            <span className={`text-[9px] font-mono font-black ${isFocused ? 'text-indigo-400 font-extrabold' : 'text-slate-400 dark:text-slate-500'}`}>
+                              {id}
+                            </span>
+                          )}
+                          <button
+                            onClick={() => {
+                              setSelectedToothId(id);
+                              appendLog('Presentation (UI)', 'Diş Seçildi', `Odontogram'dan Diş #${id} seçildi.`);
+                            }}
+                            className={`relative focus:outline-none transition-all duration-200 cursor-pointer ${isFocused ? 'scale-115 z-10' : 'hover:scale-108 hover:z-10'}`}
+                            title={`Diş #${id} - ${toothInfo.name || 'Tanımsız'}`}
+                            style={{ width: `${w}px`, height: `${h}px` }}
+                          >
+                            <svg
+                              viewBox={`0 0 ${w + 8} ${h + 8}`}
+                              className="w-full h-full animate-fadeIn"
+                              style={{ overflow: 'visible' }}
+                            >
+                              <path
+                                d={path}
+                                className={`${fillClass} ${animateClass} transition-all duration-300`}
+                                stroke={isFocused ? 'var(--color-clinic-accent, #6366f1)' : (isDark ? '#334155' : '#cbd5e1')}
+                                strokeWidth={isFocused ? 3 : 1.5}
+                                style={isFocused ? { filter: 'drop-shadow(0 0 6px var(--color-clinic-accent, #6366f1))' } : undefined}
+                              />
+                              {digit >= 4 && (
+                                <path
+                                  d={`M ${w/2},${h/3} L ${w/2},${2*h/3}`}
+                                  stroke={isDark ? '#1e293b' : '#94a3b8'}
+                                  strokeWidth={1}
+                                  strokeDasharray="2,2"
+                                  opacity={0.6}
+                                />
+                              )}
+                            </svg>
+                          </button>
+                          {!isUpper && (
+                            <span className={`text-[9px] font-mono font-black ${isFocused ? 'text-indigo-400 font-extrabold' : 'text-slate-400 dark:text-slate-500'}`}>
+                              {id}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    };
+
+                    return (
+                      <div className="w-full flex flex-col items-center py-4 select-none">
+                        <div className="w-full overflow-x-auto pb-4 pt-2">
+                          <div className="min-w-[620px] flex flex-col items-center space-y-6">
+                            
+                            {/* Upper Row (Maxilla) */}
+                            <div className="flex items-center space-x-1 relative">
+                              <span className="absolute -left-16 text-[8px] font-black text-slate-500 tracking-wider">MAXILLA</span>
+                              
+                              {/* Left side (18 - 11) */}
+                              <div className="flex items-end space-x-1.5">
+                                {[18, 17, 16, 15, 14, 13, 12, 11].map(id => renderOdontogramTooth(id, true))}
+                              </div>
+                              
+                              {/* Midline divider */}
+                              <div className="w-[2px] h-20 border-l-2 border-dashed border-indigo-500/30 mx-2 self-center"></div>
+                              
+                              {/* Right side (21 - 28) */}
+                              <div className="flex items-end space-x-1.5">
+                                {[21, 22, 23, 24, 25, 26, 27, 28].map(id => renderOdontogramTooth(id, true))}
+                              </div>
+                            </div>
+                            
+                            {/* Midline Horizontal divider */}
+                            <div className="w-[90%] h-[1px] border-t border-dashed border-slate-700/10 dark:border-slate-800 my-1"></div>
+
+                            {/* Lower Row (Mandibula) */}
+                            <div className="flex items-center space-x-1 relative">
+                              <span className="absolute -left-16 text-[8px] font-black text-slate-500 tracking-wider">MANDIBULA</span>
+                              
+                              {/* Left side (48 - 41) */}
+                              <div className="flex items-start space-x-1.5">
+                                {[48, 47, 46, 45, 44, 43, 42, 41].map(id => renderOdontogramTooth(id, false))}
+                              </div>
+                              
+                              {/* Midline divider */}
+                              <div className="w-[2px] h-20 border-l-2 border-dashed border-indigo-500/30 mx-2 self-center"></div>
+                              
+                              {/* Right side (31 - 38) */}
+                              <div className="flex items-start space-x-1.5">
+                                {[31, 32, 33, 34, 35, 36, 37, 38].map(id => renderOdontogramTooth(id, false))}
+                              </div>
+                            </div>
+
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
 
                   {/* Renk Lejantı */}
                   <div className="w-full grid grid-cols-4 gap-2 text-[10px] font-bold text-center border-t border-slate-700/20 pt-3">
                     <div className="flex items-center justify-center space-x-1">
                       <span className="h-2.5 w-2.5 rounded bg-emerald-500 block"></span>
-                      <span className={textMuted}>Sorunsuz Diş</span>
+                      <span className={textMuted}>Sağlıklı</span>
                     </div>
                     <div className="flex items-center justify-center space-x-1">
                       <span className="h-2.5 w-2.5 rounded bg-rose-500 block animate-pulse"></span>
-                      <span className={textMuted}>Kritik Lezyon</span>
+                      <span className={textMuted}>Anomalik Risk</span>
                     </div>
                     <div className="flex items-center justify-center space-x-1">
                       <span className="h-2.5 w-2.5 rounded bg-amber-500 block"></span>
-                      <span className={textMuted}>Tedavi Devam</span>
+                      <span className={textMuted}>Tedavide</span>
                     </div>
                     <div className="flex items-center justify-center space-x-1">
                       <span className="h-2.5 w-2.5 rounded bg-indigo-500 block"></span>
-                      <span className={textMuted}>Tamamlandı</span>
+                      <span className={textMuted}>Restorasyon / İmplant</span>
                     </div>
                   </div>
 
@@ -2001,14 +2185,18 @@ export default function DoctorPortal({
                     <div>
                       <label className={`text-[10px] font-black uppercase ${textTitle} block mb-1.5`}>Klinik Teşhis Durumu</label>
                       <select
-                        value={activeStatus}
-                        onChange={e => setActiveStatus(e.target.value as ToothStatus)}
+                        value={activeDiagnosis}
+                        onChange={e => setActiveDiagnosis(e.target.value)}
                         className={`w-full text-xs font-bold p-3 rounded-xl focus:outline-none ${bgSelect}`}
                       >
-                        <option value="healthy">Sağlıklı / Sorunsuz</option>
-                        <option value="risk">Kritik Yapay Zeka Riski (Anomali saptandı)</option>
-                        <option value="treatment">Tedavi Aşamasında (Protokol yürütülüyor)</option>
-                        <option value="completed">Tedavi Edilmiş / Dolgulu / Yapay Diş</option>
+                        <option value="Sağlıklı / Anomalik Bulgu Yok">Sağlıklı / Anomalik Bulgu Yok</option>
+                        <option value="Başlangıç Çürüğü (Mine)">Başlangıç Çürüğü (Mine)</option>
+                        <option value="Derin Kavite (Dentin Çürüğü)">Derin Kavite (Dentin Çürüğü)</option>
+                        <option value="Kırık / Fraktür">Kırık / Fraktür</option>
+                        <option value="Kök Kanal İltihabı">Kök Kanal İltihabı</option>
+                        <option value="Gömülü Diş">Gömülü Diş</option>
+                        <option value="Kuron / Köprü Restorasyonu">Kuron / Köprü Restorasyonu</option>
+                        <option value="İmplant">İmplant</option>
                       </select>
                     </div>
 
@@ -2124,19 +2312,12 @@ export default function DoctorPortal({
 
                     {/* patientTeeth üzerindeki tüm treatments dizilerini birleştirip gösterelim */}
                     {(() => {
-                      const allTreatments: Array<{ toothId: number; type: TreatmentType; date: string; description: string }> = [];
-                      patientTeeth.forEach(tooth => {
-                        if (tooth.treatments && tooth.treatments.length > 0) {
-                          tooth.treatments.forEach(tr => {
-                            allTreatments.push({
-                              toothId: tooth.id,
-                              type: tr.type,
-                              date: tr.date,
-                              description: tr.description
-                            });
-                          });
-                        }
-                      });
+                      const allTreatments = dbToothTreatments.map((tr: any) => ({
+                        toothId: tr.tooth_num,
+                        type: tr.treatment_type as TreatmentType,
+                        date: tr.treatment_date,
+                        description: tr.description || ''
+                      }));
 
                       if (allTreatments.length === 0) {
                         return (
@@ -2665,12 +2846,16 @@ export default function DoctorPortal({
 
                   <div className="space-y-3 overflow-y-auto max-h-[400px] pr-1">
                     {(() => {
-                      const timeline = activePatient.treatmentTimeline || [
-                        { id: 't-1', title: 'İlk Muayene ve Röntgen', date: '2026-05-10', status: 'done', notes: 'Genel ağız muayenesi ve panoramik röntgen çekimi tamamlandı.' },
-                        { id: 't-2', title: 'Derin Diş Taşı Temizliği', date: '2026-05-15', status: 'done', notes: 'Alt ve üst çene tartar temizliği ile hassasiyet kontrolü yapıldı.' },
-                        { id: 't-3', title: '26 Nolu Diş Kanal Tedavisi', date: '2026-05-25', status: 'active', notes: 'Hekim Samantha Lee tarafından kanal dolgusu ve geçici kapatma yapıldı.' },
-                        { id: 't-4', title: 'Kuron (Kaplama) Restorasyonu', date: '2026-05-30', status: 'upcoming', notes: 'Kalıcı estetik zirkonyum kaplama ölçüsü alınacak.' }
-                      ];
+                      const timeline = dbTreatmentStages;
+
+                      if (timeline.length === 0) {
+                        return (
+                          <div className="h-full flex flex-col items-center justify-center text-center text-slate-500 py-12 space-y-2">
+                            <Activity className="h-8 w-8 opacity-40 animate-pulse" />
+                            <p className="italic font-bold text-xs">Bu hastamız için henüz bir tedavi aşaması eklenmemiştir.</p>
+                          </div>
+                        );
+                      }
 
                       return (
                         <div className="space-y-3">
@@ -2688,7 +2873,7 @@ export default function DoctorPortal({
 
                               <div className="flex items-center justify-between border-b pb-2 mb-2 border-slate-700/10">
                                 <div className="flex items-center space-x-2">
-                                  <span className="text-[10px] font-mono text-indigo-400 font-bold uppercase bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">{stage.date}</span>
+                                  <span className="text-[10px] font-mono text-indigo-400 font-bold uppercase bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">{stage.stage_date}</span>
                                   <span className={`text-[9px] font-black uppercase text-white px-2 py-0.5 rounded ${stage.status === 'done' ? 'bg-emerald-500' :
                                     stage.status === 'active' ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-500'
                                     }`}>

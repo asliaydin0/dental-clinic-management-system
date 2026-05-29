@@ -182,3 +182,23 @@ def get_upcoming_appointment(patient_id: str):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(ve))
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+class PatientToothUpdateSchema(BaseModel):
+    tooth_num: int = Field(..., ge=11, le=48)
+    status: str = Field(..., description="healthy, risk, treatment, completed")
+    notes: Optional[str] = None
+
+@router.post("/{patient_id}/teeth", status_code=status.HTTP_200_OK)
+def update_patient_tooth(patient_id: str, tooth_req: PatientToothUpdateSchema):
+    """
+    HTTP POST: Insert or update status and notes of a patient's specific tooth.
+    """
+    try:
+        tooth_data = tooth_req.model_dump()
+        tooth_data["patient_id"] = patient_id
+        PatientBLL.save_patient_tooth(tooth_data)
+        return {"success": True, "message": "Diş bilgileri başarıyla güncellendi."}
+    except ValueError as ve:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))

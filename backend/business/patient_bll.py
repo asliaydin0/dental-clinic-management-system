@@ -151,3 +151,55 @@ class PatientBLL:
         if not patient_id or not patient_id.strip():
             raise ValueError("Hasta ID boş bırakılamaz.")
         return PatientDAL.get_upcoming_appointment(patient_id)
+
+    @staticmethod
+    def save_patient_tooth(tooth_data: dict) -> bool:
+        patient_id = tooth_data.get("patient_id")
+        if not patient_id:
+            raise ValueError("Hasta ID boş geçilemez.")
+        
+        try:
+            tooth_num = int(tooth_data.get("tooth_num", 0))
+        except (ValueError, TypeError):
+            raise ValueError("Diş numarası geçerli bir sayı olmalıdır.")
+
+        from business.treatment_bll import TreatmentBLL
+        from data_access.treatment_dal import TreatmentDAL
+        
+        # Derive name and zone
+        name, zone = TreatmentBLL.get_tooth_metadata(tooth_num)
+        
+        existing = TreatmentDAL.get_patient_tooth(patient_id, tooth_num)
+        tooth_args = {
+            "patient_id": patient_id,
+            "tooth_num": tooth_num,
+            "name": name,
+            "zone": zone,
+            "status": tooth_data.get("status", "healthy"),
+            "notes": tooth_data.get("notes", "")
+        }
+
+        if existing:
+            return PatientDAL.update_patient_tooth(tooth_args)
+        else:
+            return TreatmentDAL.insert_patient_tooth(tooth_args)
+
+    @staticmethod
+    def add_treatment_stage(stage_data: dict) -> bool:
+        if not stage_data.get("patient_id"):
+            raise ValueError("Hasta ID boş bırakılamaz.")
+        if not stage_data.get("title"):
+            raise ValueError("Başlık boş bırakılamaz.")
+        if not stage_data.get("stage_date"):
+            from datetime import date
+            stage_data["stage_date"] = date.today().isoformat()
+        if stage_data.get("status") not in ('done', 'active', 'upcoming'):
+            stage_data["status"] = 'upcoming'
+        
+        return PatientDAL.insert_treatment_stage(stage_data)
+
+    @staticmethod
+    def remove_treatment_stage(stage_id: int) -> bool:
+        if not stage_id or stage_id <= 0:
+            raise ValueError("Geçersiz aşama ID.")
+        return PatientDAL.delete_treatment_stage(stage_id)

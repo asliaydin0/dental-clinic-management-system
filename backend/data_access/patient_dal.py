@@ -201,3 +201,48 @@ class PatientDAL:
                 ))
                 return patient_apps[0]
             return None
+
+    @staticmethod
+    def update_patient_tooth(tooth_data: dict) -> bool:
+        """
+        Updates patient tooth status and notes by calling Stored Procedure 'sp_UpdatePatientTooth'.
+        """
+        with DBConnectionContext() as (conn, cursor):
+            args = [
+                tooth_data["patient_id"],
+                tooth_data["tooth_num"],
+                tooth_data["name"],
+                tooth_data["zone"],
+                tooth_data["status"],
+                tooth_data.get("notes")
+            ]
+            cursor.callproc("sp_UpdatePatientTooth", args)
+            conn.commit()
+            return True
+
+    @staticmethod
+    def insert_treatment_stage(stage_data: dict) -> bool:
+        """
+        Inserts a treatment stage by calling 'sp_InsertTreatmentStage'.
+        """
+        with DBConnectionContext() as (conn, cursor):
+            args = [
+                stage_data["patient_id"],
+                stage_data["title"],
+                stage_data["stage_date"],
+                stage_data["status"],
+                stage_data.get("notes")
+            ]
+            cursor.callproc("sp_InsertTreatmentStage", args)
+            conn.commit()
+            return True
+
+    @staticmethod
+    def delete_treatment_stage(stage_id: int) -> bool:
+        """
+        Deletes a treatment stage by calling 'sp_DeleteTreatmentStage'.
+        """
+        with DBConnectionContext() as (conn, cursor):
+            cursor.callproc("sp_DeleteTreatmentStage", [stage_id])
+            conn.commit()
+            return True

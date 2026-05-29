@@ -69,6 +69,7 @@ class TreatmentDAL:
                 tooth_data.get("notes")
             ]
             cursor.callproc("sp_InsertPatientTooth", args)
+            conn.commit()
             return True
 
     @staticmethod
@@ -85,4 +86,5 @@ class TreatmentDAL:
                 treatment_data.get("description")
             ]
             cursor.callproc("sp_InsertToothTreatment", args)
+            conn.commit()
             return True
