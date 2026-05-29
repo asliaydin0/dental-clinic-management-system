@@ -304,7 +304,7 @@ export default function LandingPage({ onEnterLogin, theme = 'light' }: LandingPa
               const IconComp = stat.icon;
               return (
                 <div key={sIdx} className="flex items-center space-x-3.5">
-                  <div className={`p-2.5 rounded-xl bg-white dark:bg-slate-800 shadow-sm border border-slate-200/40 dark:border-slate-705 ${stat.color}`}>
+                  <div className={`p-2.5 rounded-xl bg-white dark:bg-slate-800 shadow-sm border border-slate-200/40 dark:border-slate-700 ${stat.color}`}>
                     <IconComp className="h-5 w-5" />
                   </div>
                   <div>
@@ -401,7 +401,7 @@ export default function LandingPage({ onEnterLogin, theme = 'light' }: LandingPa
               </div>
               <button
                 onClick={onEnterLogin}
-                className="bg-transparent hover:bg-slate-900 hover:text-white dark:hover:bg-slate-800 border-2 border-slate-805 dark:border-slate-700 text-slate-800 dark:text-slate-205 py-2.5 px-6 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
+                className="bg-transparent hover:bg-slate-900 hover:text-white dark:hover:bg-slate-800 border-2 border-slate-800 dark:border-slate-700 text-slate-800 dark:text-slate-200 py-2.5 px-6 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
               >
                 <span>Hemen Giriş Yap</span>
                 <ArrowRight className="h-3.5 w-3.5" />

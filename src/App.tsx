@@ -216,6 +216,13 @@ function AppContent() {
     }
   }, [currentUser]);
 
+  useEffect(() => {
+    const currentClinicId = currentUser?.clinicId;
+    const currentClinic = clinics.find(c => c.id === currentClinicId);
+    const themeColor = currentClinic?.themeColor || '#3B82F6';
+    document.documentElement.style.setProperty('--color-clinic-accent', themeColor);
+  }, [currentUser, clinics]);
+
   const handleCreateUser = async (name: string, email: string, role: 'doctor' | 'secretary' | 'patient', phone?: string, customPassword?: string) => {
     const exists = mockUsers.some(u => u.email.toLowerCase().trim() === email.toLowerCase().trim());
     if (exists) {

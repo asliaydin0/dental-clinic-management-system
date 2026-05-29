@@ -126,7 +126,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="bg-white dark:bg-[#0e1626] border border-slate-205 dark:border-slate-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full"
+              className="bg-white dark:bg-[#0e1626] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full"
             >
               <div className="flex items-center gap-2.5 mb-3">
                 <HelpCircle className="h-5 w-5 text-rose-500" />

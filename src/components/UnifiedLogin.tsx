@@ -259,7 +259,7 @@ export default function UnifiedLogin({ onLoginSuccess, mockUsers, onUpdateUserPa
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     required
-                    className="w-full bg-slate-900/80 border border-slate-700 hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl py-3 pl-11 pr-4 text-xs text-white placeholder-slate-505 focus:outline-none transition-all font-medium"
+                    className="w-full bg-slate-900/80 border border-slate-700 hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl py-3 pl-11 pr-4 text-xs text-white placeholder-slate-500 focus:outline-none transition-all font-medium"
                     placeholder="email@klinik.com"
                   />
                 </div>
@@ -279,7 +279,7 @@ export default function UnifiedLogin({ onLoginSuccess, mockUsers, onUpdateUserPa
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     required
-                    className="w-full bg-slate-900/80 border border-slate-700 hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl py-3 pl-11 pr-11 text-xs text-white placeholder-slate-505 focus:outline-none transition-all font-mono"
+                    className="w-full bg-slate-900/80 border border-slate-700 hover:border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl py-3 pl-11 pr-11 text-xs text-white placeholder-slate-500 focus:outline-none transition-all font-mono"
                     placeholder="••••••••••••••"
                   />
                   <button
@@ -514,7 +514,7 @@ export default function UnifiedLogin({ onLoginSuccess, mockUsers, onUpdateUserPa
                   <p className="text-slate-400 text-[10px] italic">{preset.user}</p>
                 </div>
 
-                <div className="mt-2.5 font-mono text-[9px] text-slate-505 space-y-0.5 border-t border-slate-800/60 pt-2 font-bold select-text">
+                 <div className="mt-2.5 font-mono text-[9px] text-slate-500 space-y-0.5 border-t border-slate-800/60 pt-2 font-bold select-text">
                   <div className="truncate text-slate-400" title={preset.email}>E: {preset.email}</div>
                   <div className="text-slate-350">Ş: {displayPass}</div>
                 </div>

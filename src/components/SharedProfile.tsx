@@ -79,15 +79,15 @@ export default function SharedProfile({
 
         {/* Hekim Hızlı Özet İstatistikler */}
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <div className={`px-4 py-2.5 rounded-xl border ${isDark ? 'bg-indigo-505/5 border-slate-700/20' : 'bg-slate-50 border-slate-200'} text-center`}>
+          <div className={`px-4 py-2.5 rounded-xl border ${isDark ? 'bg-indigo-500/5 border-slate-700/20' : 'bg-slate-50 border-slate-200'} text-center`}>
             <p className="text-[10px] uppercase font-mono text-slate-400 font-bold">Kayıtlı Hastalarım</p>
             <p className={`text-lg font-black ${textTitle}`}>{patientsList.length}</p>
           </div>
-          <div className={`px-4 py-2.5 rounded-xl border ${isDark ? 'bg-indigo-505/5 border-slate-700/20' : 'bg-slate-50 border-slate-200'} text-center`}>
+          <div className={`px-4 py-2.5 rounded-xl border ${isDark ? 'bg-indigo-500/5 border-slate-700/20' : 'bg-slate-50 border-slate-200'} text-center`}>
             <p className="text-[10px] uppercase font-mono text-slate-400 font-bold">Randevu Sayısı</p>
             <p className={`text-lg font-black ${textTitle}`}>{appointmentsList.length}</p>
           </div>
-          <div className={`px-4 py-2.5 rounded-xl border ${isDark ? 'bg-indigo-505/5 border-slate-700/20' : 'bg-slate-50 border-slate-200'} text-center`}>
+          <div className={`px-4 py-2.5 rounded-xl border ${isDark ? 'bg-indigo-500/5 border-slate-700/20' : 'bg-slate-50 border-slate-200'} text-center`}>
             <p className="text-[10px] uppercase font-mono text-slate-400 font-bold">Klinik Görevleri</p>
             <p className={`text-lg font-black ${textTitle}`}>{doctorTasks.length}</p>
           </div>
@@ -317,7 +317,7 @@ export default function SharedProfile({
             </div>
 
             <div className="space-y-4">
-              <div className={`p-4 rounded-xl flex items-center space-x-3.5 ${isDark ? 'bg-indigo-505/5' : 'bg-indigo-50/20 border border-indigo-100'}`}>
+              <div className={`p-4 rounded-xl flex items-center space-x-3.5 ${isDark ? 'bg-indigo-500/5' : 'bg-indigo-50/20 border border-indigo-100'}`}>
                 <div className="bg-indigo-500 text-slate-950 p-3 rounded-2xl text-lg font-black shrink-0">
                   🏢
                 </div>

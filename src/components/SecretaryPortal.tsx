@@ -107,7 +107,7 @@ export default function SecretaryPortal({
     <div className="h-screen overflow-hidden bg-[#F8F9FA] dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans select-none antialiased transition-colors duration-200">
       
       {/* Top Secretary Custom Styling banner */}
-      <header className="bg-white dark:bg-slate-900 border-b border-slate-205 dark:border-slate-800 py-4 px-6 flex items-center justify-between shadow-sm" style={{ borderTop: `4px solid ${currentClinic?.themeColor || '#10B981'}` }}>
+      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between shadow-sm border-t-4 border-clinic-accent">
         <div className="flex items-center space-x-3.5">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -117,8 +117,7 @@ export default function SecretaryPortal({
             <Menu className="h-4 w-4" />
           </button>
           <div 
-            className="h-10 w-10 rounded-xl flex items-center justify-center text-xl shadow shrink-0"
-            style={{ backgroundColor: `${currentClinic?.themeColor || '#10B981'}15`, border: `1.5px solid ${currentClinic?.themeColor || '#10B981'}50` }}
+            className="h-10 w-10 rounded-xl flex items-center justify-center text-xl shadow shrink-0 bg-clinic-accent/15 border border-clinic-accent/50"
           >
             {currentClinic?.logoUrl.startsWith('blob:') || currentClinic?.logoUrl.startsWith('http') ? (
               <img src={currentClinic.logoUrl} alt="Logo" className="h-8 w-8 object-cover rounded" />
@@ -136,7 +135,7 @@ export default function SecretaryPortal({
           {/* Theme Toggle */}
           <button
             onClick={() => setTheme?.(theme === 'light' ? 'dark' : 'light')}
-            className="p-2 bg-slate-105 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-705 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl transition-all cursor-pointer flex items-center justify-center shrink-0 animate-fade-in"
+            className="p-2 bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl transition-all cursor-pointer flex items-center justify-center shrink-0 animate-fade-in"
             title={theme === 'light' ? 'Karanlık Mod' : 'Aydınlık Mod'}
           >
             {theme === 'light' ? (
@@ -172,7 +171,7 @@ export default function SecretaryPortal({
         </AnimatePresence>
 
         {/* Left Side Dock */}
-        <aside className={`fixed inset-y-0 left-0 sm:relative z-50 sm:z-auto w-60 bg-white dark:bg-slate-900 border-r border-slate-205 dark:border-slate-800 flex flex-col justify-between h-full select-none transition-transform sm:translate-x-0 duration-300 shadow-inner ${sidebarOpen ? 'translate-x-0' : '-translate-x-full sm:flex'}`}>
+        <aside className={`fixed inset-y-0 left-0 sm:relative z-50 sm:z-auto w-60 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between h-full select-none transition-transform sm:translate-x-0 duration-300 shadow-inner ${sidebarOpen ? 'translate-x-0' : '-translate-x-full sm:flex'}`}>
           <div className="p-4 space-y-5">
             
             {/* Mobil Menü Kapatma Başlığı */}
@@ -195,11 +194,12 @@ export default function SecretaryPortal({
                   setSidebarOpen(false);
                 }}
                 className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  activeTab === 'appointments' ? 'text-white font-extrabold' : 'text-slate-500 dark:text-slate-400 hover:text-[#10B981] dark:hover:text-white hover:bg-slate-55 dark:hover:bg-slate-900/60'
+                  activeTab === 'appointments'
+                    ? 'bg-clinic-accent/20 text-clinic-accent dark:text-white font-extrabold shadow-inner'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-clinic-accent dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900/60'
                 }`}
-                style={activeTab === 'appointments' ? { backgroundColor: `${currentClinic?.themeColor || '#10B981'}20`, color: theme === 'light' ? currentClinic?.themeColor || '#10B981' : '#FFF' } : {}}
               >
-                <ClipboardList className="h-4 w-4 shrink-0" style={{ color: activeTab === 'appointments' ? currentClinic?.themeColor : '#64748B' }} />
+                <ClipboardList className={`h-4 w-4 shrink-0 ${activeTab === 'appointments' ? 'text-clinic-accent' : 'text-slate-500'}`} />
                 <span>Randevular & Hekimler</span>
               </button>
 
@@ -209,11 +209,12 @@ export default function SecretaryPortal({
                   setSidebarOpen(false);
                 }}
                 className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  activeTab === 'patients' ? 'text-white font-extrabold' : 'text-slate-500 dark:text-slate-400 hover:text-[#10B981] dark:hover:text-white hover:bg-slate-55 dark:hover:bg-slate-900/60'
+                  activeTab === 'patients'
+                    ? 'bg-clinic-accent/20 text-clinic-accent dark:text-white font-extrabold shadow-inner'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-clinic-accent dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900/60'
                 }`}
-                style={activeTab === 'patients' ? { backgroundColor: `${currentClinic?.themeColor || '#10B981'}20`, color: theme === 'light' ? currentClinic?.themeColor || '#10B981' : '#FFF' } : {}}
               >
-                <Users className="h-4 w-4 shrink-0" style={{ color: activeTab === 'patients' ? currentClinic?.themeColor : '#64748B' }} />
+                <Users className={`h-4 w-4 shrink-0 ${activeTab === 'patients' ? 'text-clinic-accent' : 'text-slate-500'}`} />
                 <span>Hasta Kayıt Defteri</span>
               </button>
             </div>
@@ -238,7 +239,7 @@ export default function SecretaryPortal({
 
           </div>
 
-          <div className="p-4 bg-slate-50 dark:bg-slate-950/40 border-t border-slate-200 dark:border-slate-850 text-center text-[10px] text-slate-405">
+          <div className="p-4 bg-slate-50 dark:bg-slate-950/40 border-t border-slate-200 dark:border-slate-850 text-center text-[10px] text-slate-400">
             Resepsiyon Sorumlu İstasyonu
           </div>
         </aside>
@@ -293,7 +294,7 @@ export default function SecretaryPortal({
                 </div>
 
                 {/* Patient registration shortcut banner */}
-                <div className="bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-800 p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
                   <div className="space-y-1 text-center md:text-left">
                     <h4 className="text-xs font-black text-slate-800 dark:text-white uppercase tracking-wider">Klinik lobisine yeni hasta mı ulaştı?</h4>
                     <p className="text-[10px] text-slate-500">Kimlik, e-posta ve telefonunu girerek anında geçici şifreli hasta kartı oluşturun.</p>
@@ -333,7 +334,7 @@ export default function SecretaryPortal({
                       type="text"
                       value={searchQuery}
                       onChange={e => setSearchQuery(e.target.value)}
-                      className="w-full bg-slate-55 dark:bg-slate-950 border border-slate-205 dark:border-slate-800 rounded-xl py-2 pl-10 pr-4 text-xs text-slate-800 dark:text-white placeholder-slate-500 focus:outline-none"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl py-2 pl-10 pr-4 text-xs text-slate-800 dark:text-white placeholder-slate-500 focus:outline-none"
                       placeholder="Hasta ismi veya e-posta adresi aratın..."
                     />
                   </div>
@@ -368,7 +369,7 @@ export default function SecretaryPortal({
                       </p>
                     </div>
 
-                    <div className="bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-800 p-4 rounded-2xl w-full md:w-80 space-y-2 select-text text-xs">
+                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl w-full md:w-80 space-y-2 select-text text-xs">
                       <div className="flex justify-between"><span className="text-slate-500 font-medium">Hasta:</span><strong className="text-slate-800 dark:text-white">{patientTicket.name}</strong></div>
                       <div className="flex justify-between"><span className="text-slate-500 font-medium">E-Posta:</span><strong className="text-cyan-600 dark:text-cyan-400">{patientTicket.email}</strong></div>
                       <div className="flex justify-between items-center border-t border-slate-100 dark:border-slate-800/80 pt-2.5 mt-2 bg-amber-50 dark:bg-amber-950/20 px-2 py-1.5 rounded border border-amber-200 dark:border-amber-900/30">
@@ -435,8 +436,8 @@ export default function SecretaryPortal({
                   })}
 
                   {filteredPatients.length === 0 && (
-                    <div className="col-span-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-12 text-center rounded-2xl font-bold flex flex-col items-center justify-center space-y-3 text-slate-505 shadow-sm">
-                      <Users className="h-9 w-9 text-slate-300 dark:text-slate-605 animate-pulse" />
+                    <div className="col-span-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-12 text-center rounded-2xl font-bold flex flex-col items-center justify-center space-y-3 text-slate-500 shadow-sm">
+                      <Users className="h-9 w-9 text-slate-300 dark:text-slate-600 animate-pulse" />
                       <p className="text-xs uppercase tracking-wider">Aradığınız kriterlerde kayıtlı hasta bulunamadı.</p>
                       <p className="text-[10px] text-slate-400 dark:text-slate-500 font-normal font-sans">SaaS klinik ağınızda henüz yeni kayıt başlatılmamış olabilir.</p>
                     </div>
@@ -473,30 +474,30 @@ export default function SecretaryPortal({
                     value={patientName}
                     onChange={e => setPatientName(e.target.value)}
                     required
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 rounded-xl py-2.5 px-3.5 text-xs text-slate-855 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 rounded-xl py-2.5 px-3.5 text-xs text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-cyan-500"
                     placeholder="Hasta tam kimliği"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-505 dark:text-slate-400 uppercase tracking-widest block">Sistem Kayıt E-Postası</label>
+                  <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block">Sistem Kayıt E-Postası</label>
                   <input
                     type="email"
                     value={patientEmail}
                     onChange={e => setPatientEmail(e.target.value)}
                     required
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 rounded-xl py-2.5 px-3.5 text-xs text-slate-855 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-cyan-500 font-mono"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 rounded-xl py-2.5 px-3.5 text-xs text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-cyan-500 font-mono"
                     placeholder="hasta@gmail.com"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-505 dark:text-slate-400 uppercase tracking-widest block">Telefon Numarası</label>
+                  <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block">Telefon Numarası</label>
                   <input
                     type="text"
                     value={patientPhone}
                     onChange={e => setPatientPhone(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-805 focus:border-cyan-500 rounded-xl py-2.5 px-3.5 text-xs text-slate-855 dark:text-white placeholder-slate-400 focus:outline-none"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 rounded-xl py-2.5 px-3.5 text-xs text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none"
                     placeholder="05..."
                   />
                 </div>
@@ -508,15 +509,14 @@ export default function SecretaryPortal({
                 <div className="flex gap-3 pt-2">
                   <button
                     type="submit"
-                    className="flex-1 text-white dark:text-slate-900 font-black py-2.5 rounded-xl text-xs tracking-wider transition-colors cursor-pointer text-center outline-none border-none"
-                    style={{ backgroundColor: currentClinic?.themeColor || '#10B981' }}
+                    className="flex-1 bg-clinic-accent hover:bg-clinic-accent/90 text-white font-black py-2.5 rounded-xl text-xs tracking-wider transition-colors cursor-pointer text-center outline-none border-none"
                   >
                     HASTAYI OLUŞTUR VE BİLET YAZDIR
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowAddPatientModal(false)}
-                    className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-705 text-slate-500 dark:text-slate-405 px-4 py-2.5 rounded-xl text-xs font-bold transition-colors cursor-pointer border border-slate-205 dark:border-slate-700"
+                    className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-205 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 px-4 py-2.5 rounded-xl text-xs font-bold transition-colors cursor-pointer border border-slate-200 dark:border-slate-700"
                   >
                     Kapat
                   </button>

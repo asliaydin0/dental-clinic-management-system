@@ -213,7 +213,7 @@ export default function ClinicAdminPortal({
     <div className="h-screen overflow-hidden bg-[#F8F9FA] dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans select-none antialiased transition-colors duration-200">
 
       {/* Top Clinic Branding Responsive Navbar */}
-      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between shadow-sm" style={{ borderTop: `4px solid ${currentClinic.themeColor}` }}>
+      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between shadow-sm border-t-4 border-clinic-accent">
         <div className="flex items-center space-x-3.5">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -223,8 +223,7 @@ export default function ClinicAdminPortal({
             <Menu className="h-4 w-4" />
           </button>
           <div
-            className="h-10 w-10 rounded-xl flex items-center justify-center text-xl shadow-md shrink-0"
-            style={{ backgroundColor: `${currentClinic.themeColor}15`, border: `1.5px solid ${currentClinic.themeColor}50` }}
+            className="h-10 w-10 rounded-xl flex items-center justify-center text-xl shadow-md shrink-0 bg-clinic-accent/15 border border-clinic-accent/50"
           >
             {currentClinic.logoUrl.startsWith('blob:') || currentClinic.logoUrl.startsWith('http') ? (
               <img src={currentClinic.logoUrl} alt="Logo" className="h-8 w-8 object-cover rounded" />
@@ -318,12 +317,11 @@ export default function ClinicAdminPortal({
                       setSidebarOpen(false);
                     }}
                     className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${isSelected
-                      ? 'text-white shadow-inner animate-pulse'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900/60'
+                      ? 'bg-clinic-accent/20 border-l-3 border-clinic-accent text-clinic-accent dark:text-white shadow-inner animate-pulse'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-clinic-accent dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900/60'
                       }`}
-                    style={isSelected ? { backgroundColor: `${currentClinic.themeColor}20`, borderLeft: `3px solid ${currentClinic.themeColor}`, color: theme === 'light' ? currentClinic.themeColor : '#FFF' } : {}}
                   >
-                    <Icon className="h-4 w-4 shrink-0" style={{ color: isSelected ? currentClinic.themeColor : '#64748B' }} />
+                    <Icon className={`h-4 w-4 shrink-0 ${isSelected ? 'text-clinic-accent' : 'text-slate-500'}`} />
                     <span>{tab.label}</span>
                   </button>
                 );
@@ -331,7 +329,7 @@ export default function ClinicAdminPortal({
             </div>
 
             {/* Quota overview panel */}
-            <div className="border-t border-slate-205 dark:border-slate-850 pt-4 space-y-3">
+            <div className="border-t border-slate-200 dark:border-slate-850 pt-4 space-y-3">
               <span className="text-[9px] font-bold text-slate-500 tracking-widest block px-3 uppercase">Plan Durumu</span>
 
               <div className="bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl p-3 shadow-inner flex items-center justify-between">
@@ -344,8 +342,8 @@ export default function ClinicAdminPortal({
 
           </div>
 
-          <div className="p-4 border-t border-slate-200 dark:border-slate-850 bg-slate-50 dark:bg-slate-950/40 text-center">
-            <span className="text-[9px] font-bold text-slate-605 font-mono tracking-tight block">Klinik UUID: {currentClinic.id}</span>
+          <div className="p-4 border-t border-slate-200 dark:border-slate-855 bg-slate-50 dark:bg-slate-950/40 text-center">
+            <span className="text-[9px] font-bold text-slate-600 font-mono tracking-tight block">Klinik UUID: {currentClinic.id}</span>
           </div>
         </aside>
 
@@ -367,35 +365,35 @@ export default function ClinicAdminPortal({
                   <motion.div
                     initial={{ scale: 0.95, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="bg-slate-950 border-2 border-amber-500/30 rounded-2xl p-5 shadow-xl mb-4 relative"
+                    className="bg-amber-50/50 dark:bg-slate-950 border-2 border-amber-500/30 rounded-2xl p-5 shadow-xl mb-4 relative"
                   >
                     <div className="flex items-center gap-2 mb-3">
                       <Shield className="h-5 w-5 text-amber-500 animate-pulse" />
-                      <h4 className="text-slate-200 text-xs font-black uppercase">Hesap Başarıyla Oluşturuldu (Geçici Şifre Atandı)</h4>
+                      <h4 className="text-slate-800 dark:text-slate-250 text-xs font-black uppercase">Hesap Başarıyla Oluşturuldu (Geçici Şifre Atandı)</h4>
                     </div>
-                    <p className="text-slate-400 text-xs leading-relaxed mb-4">
+                    <p className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed mb-4">
                       Sistem, oluşturulan yeni personel/hasta için otomatik geçici giriş şifresi tanımladı. Kullanıcı bu şifre ile ilk girişi yaptığında **zorunlu şifre değiştirme ekranına** yönlendirilecektir. Gerekli giriş bilgilerini kopyalayıp iletebilirsiniz:
                     </p>
 
-                    <div className="bg-slate-900 p-3.5 rounded-xl text-xs space-y-2 border border-slate-800 select-text">
+                    <div className="bg-slate-100 dark:bg-slate-900 p-3.5 rounded-xl text-xs space-y-2 border border-slate-200 dark:border-slate-800 select-text">
                       <div className="flex justify-between">
-                        <span className="text-slate-505 font-medium">Kullanıcı Sorumlusu:</span>
-                        <strong className="text-white">{createdUserCredentials.name}</strong>
+                        <span className="text-slate-500 dark:text-slate-400 font-medium">Kullanıcı Sorumlusu:</span>
+                        <strong className="text-slate-900 dark:text-white">{createdUserCredentials.name}</strong>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-505 font-medium">Sistem Giriş E-Postası:</span>
-                        <strong className="text-cyan-400">{createdUserCredentials.email}</strong>
+                        <span className="text-slate-500 dark:text-slate-400 font-medium">Sistem Giriş E-Postası:</span>
+                        <strong className="text-cyan-600 dark:text-cyan-400">{createdUserCredentials.email}</strong>
                       </div>
                       <div className="flex justify-between items-center bg-amber-950/20 px-2 py-1.5 rounded border border-amber-900/20">
-                        <span className="text-amber-400 font-bold uppercase text-[10px]">Geçici Şifre:</span>
-                        <span className="flex items-center gap-1.5 font-mono text-white font-black bg-slate-950 px-2.5 py-1 rounded">
+                        <span className="text-amber-605 dark:text-amber-400 font-bold uppercase text-[10px]">Geçici Şifre:</span>
+                        <span className="flex items-center gap-1.5 font-mono text-slate-900 dark:text-white font-black bg-slate-200 dark:bg-slate-950 px-2.5 py-1 rounded">
                           {createdUserCredentials.pass}
                           <button
                             onClick={() => {
                               navigator.clipboard.writeText(`Giriş: ${createdUserCredentials.email}\nŞifre: ${createdUserCredentials.pass}`);
                               toast.success('Giriş bilgileri panoya kopyalandı.');
                             }}
-                            className="text-amber-505 hover:text-amber-400 cursor-pointer"
+                            className="text-amber-600 dark:text-amber-400 hover:text-amber-500 cursor-pointer"
                             title="Bilgileri Kopyala"
                           >
                             <Copy className="h-3 w-3" />
@@ -406,7 +404,7 @@ export default function ClinicAdminPortal({
 
                     <button
                       onClick={() => setCreatedUserCredentials(null)}
-                      className="absolute top-4 right-4 text-slate-400 hover:text-white"
+                      className="absolute top-4 right-4 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white text-xs font-bold"
                     >
                       Kapat
                     </button>
@@ -414,7 +412,7 @@ export default function ClinicAdminPortal({
                 )}
 
                 {/* Control Panel filters */}
-                <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-slate-950 p-4 border border-slate-805 rounded-2xl shadow-sm">
+                <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-white dark:bg-slate-900 p-4 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm">
                   <div className="flex flex-wrap items-center gap-2">
                     {[
                       { id: 'all', label: `Tümü (${clinicUsers.length})` },
@@ -426,8 +424,8 @@ export default function ClinicAdminPortal({
                         key={f.id}
                         onClick={() => setUserRoleFilter(f.id as any)}
                         className={`text-xs px-2.5 py-1.5 rounded-lg font-bold transition-all ${userRoleFilter === f.id
-                          ? 'bg-slate-900 border text-white'
-                          : 'text-slate-400 hover:text-slate-200'
+                          ? 'bg-slate-100 dark:bg-slate-800 border text-slate-800 dark:text-white'
+                          : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                           }`}
                         style={userRoleFilter === f.id ? { borderColor: currentClinic.themeColor } : {}}
                       >
@@ -457,45 +455,45 @@ export default function ClinicAdminPortal({
                     return (
                       <div
                         key={user.id}
-                        className={`bg-slate-950 border border-slate-805 rounded-inner p-4.5 rounded-2xl relative shadow flex flex-col justify-between ${isTemp ? 'border-amber-500/20' : ''
+                        className={`bg-white dark:bg-slate-955 border border-slate-200 dark:border-slate-800 p-4.5 rounded-2xl relative shadow flex flex-col justify-between ${isTemp ? 'border-amber-500/20 dark:border-amber-500/20' : ''
                           }`}
                       >
                         {/* Upper Details Block */}
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
-                            <span className={`text-[9px] font-black border px-2 py-0.5 rounded-full uppercase ${isDoctor ? 'bg-sky-950 text-sky-400 border-sky-900/40' :
-                              isSec ? 'bg-teal-950 text-teal-400 border-teal-900/40' : 'bg-indigo-950 text-indigo-400 border-indigo-900/40'
+                            <span className={`text-[9px] font-black border px-2 py-0.5 rounded-full uppercase ${isDoctor ? 'bg-sky-50 dark:bg-sky-950 text-sky-600 dark:text-sky-400 border-sky-105 dark:border-sky-900/40' :
+                              isSec ? 'bg-teal-50 dark:bg-teal-950 text-teal-655 dark:text-teal-400 border-teal-100 dark:border-teal-900/40' : 'bg-indigo-50 dark:bg-indigo-950 text-indigo-650 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900/40'
                               }`}>
                               {user.role === 'doctor' ? 'HEKİM' : user.role === 'secretary' ? 'SEKRETER' : 'HASTA'}
                             </span>
 
-                            <span className={`text-[8px] font-extrabold border py-0.5 px-2 rounded ${isTemp ? 'bg-amber-950 text-amber-400 border-amber-900/30 font-mono animate-pulse' : 'bg-emerald-950 text-emerald-400 border-emerald-900/30'
+                            <span className={`text-[8px] font-extrabold border py-0.5 px-2 rounded ${isTemp ? 'bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-900/30 font-mono animate-pulse' : 'bg-emerald-50 dark:bg-emerald-950 text-emerald-650 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/30'
                               }`}>
                               {isTemp ? 'ŞİFREMİ DEĞİŞTİRMEDİ' : 'AKTİF ŞİFRELİ'}
                             </span>
                           </div>
 
                           <div>
-                            <h4 className="text-sm font-extrabold text-white tracking-tight">{user.name}</h4>
-                            <p className="text-[10px] text-slate-500 font-mono font-bold mt-1 truncate">{user.email}</p>
+                            <h4 className="text-sm font-extrabold text-slate-800 dark:text-white tracking-tight">{user.name}</h4>
+                            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-mono font-bold mt-1 truncate">{user.email}</p>
                             {user.phoneNumber && (
-                              <p className="text-[10px] text-slate-500 flex items-center gap-1 mt-1 font-bold">
-                                <Phone className="h-3 w-3 text-slate-520" />
+                              <p className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1 font-bold">
+                                <Phone className="h-3 w-3 text-slate-400 dark:text-slate-500" />
                                 {user.phoneNumber}
                               </p>
                             )}
                             {isTemp && user.password && (
-                              <div className="mt-2 text-[10px] bg-amber-950/20 border border-amber-900/30 p-2 rounded-xl flex items-center justify-between">
-                                <span className="text-amber-500 font-bold font-mono">Geçici Şifre:</span>
-                                <span className="text-white font-mono font-black select-all cursor-pointer" title="Dokunup Kopyalayın">{user.password}</span>
+                              <div className="mt-2 text-[10px] bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 p-2 rounded-xl flex items-center justify-between">
+                                <span className="text-amber-600 dark:text-amber-500 font-bold font-mono">Geçici Şifre:</span>
+                                <span className="text-slate-800 dark:text-white font-mono font-black select-all cursor-pointer" title="Dokunup Kopyalayın">{user.password}</span>
                               </div>
                             )}
                           </div>
                         </div>
 
                         {/* Lower Action bar */}
-                        <div className="flex items-center justify-between border-t border-slate-900 pt-3 mt-4 text-xs">
-                          <span className="text-[9px] font-mono text-slate-600 font-bold">ID: {user.id}</span>
+                        <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-900 pt-3 mt-4 text-xs">
+                          <span className="text-[9px] font-mono text-slate-500 dark:text-slate-600 font-bold">ID: {user.id}</span>
 
                           <div className="flex items-center gap-2">
                             {/* Prohibit clinic administrator deleting themselves */}
@@ -506,7 +504,7 @@ export default function ClinicAdminPortal({
                                     onDeleteUser(user.id);
                                   }
                                 }}
-                                className="text-slate-500 hover:text-rose-400 transition-colors p-1 rounded hover:bg-slate-900 cursor-pointer"
+                                className="text-slate-400 dark:text-slate-500 hover:text-rose-600 dark:hover:text-rose-450 transition-colors p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-900 cursor-pointer"
                                 title="Kullanıcıyı Sil"
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -518,7 +516,7 @@ export default function ClinicAdminPortal({
                         {/* Visual temporary warning */}
                         {isTemp && (
                           <div className="absolute right-3.5 bottom-12 text-right">
-                            <span className="text-[8px] text-amber-500 font-bold block">Geçici Şifre Atandı</span>
+                            <span className="text-[8px] text-amber-600 dark:text-amber-500 font-bold block">Geçici Şifre Atandı</span>
                           </div>
                         )}
                       </div>
@@ -526,10 +524,10 @@ export default function ClinicAdminPortal({
                   })}
 
                   {filteredUsers.length === 0 && (
-                    <div className="col-span-full bg-slate-950 border border-slate-805 p-12 text-center rounded-2xl flex flex-col items-center justify-center space-y-3 text-slate-500">
-                      <FolderOpen className="h-10 w-10 text-slate-600 animate-pulse" />
-                      <p className="text-xs font-bold uppercase tracking-wide">Bu kategoride kullanıcı kaydı bulunamadı.</p>
-                      <p className="text-[10px] text-slate-600 max-w-sm">Sağ üstteki mavi düğmeye dokunarak yeni hekim veya hasta kayıt edebilir ve ilk giriş kodları alabilirsiniz.</p>
+                    <div className="col-span-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-12 text-center rounded-2xl flex flex-col items-center justify-center space-y-3 text-slate-500">
+                      <FolderOpen className="h-10 w-10 text-slate-400 dark:text-slate-600 animate-pulse" />
+                      <p className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-500">Bu kategoride kullanıcı kaydı bulunamadı.</p>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-600 max-w-sm">Sağ üstteki mavi düğmeye dokunarak yeni hekim veya hasta kayıt edebilir ve ilk giriş kodları alabilirsiniz.</p>
                     </div>
                   )}
                 </div>
@@ -546,54 +544,54 @@ export default function ClinicAdminPortal({
                 exit={{ opacity: 0, y: -10 }}
                 className="space-y-6"
               >
-                <div className="grid lg:grid-cols-12 gap-6 bg-slate-955 p-5 border border-slate-800 rounded-2xl shadow-sm">
+                <div className="grid lg:grid-cols-12 gap-6 bg-white dark:bg-slate-900/50 p-5 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm">
 
                   {/* Styling Form */}
                   <div className="lg:col-span-7 space-y-5">
                     <div>
-                      <h3 className="text-sm font-black text-white uppercase tracking-wider">MARKA VE RENK AYARLARI</h3>
-                      <p className="text-[11px] text-slate-525 mt-0.5 font-semibold">Klinik kimliğinizi global olarak kurdistanın her yerinde simüle eder.</p>
+                      <h3 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wider">MARKA VE RENK AYARLARI</h3>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 font-semibold">Klinik kimliğinizi global olarak kurdistanın her yerinde simüle eder.</p>
                     </div>
 
                     <div className="space-y-4">
                       <div className="space-y-1.5">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Klinik Kurumsal Adı</label>
+                        <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block">Klinik Kurumsal Adı</label>
                         <input
                           type="text"
                           value={clinicName}
                           onChange={e => setClinicName(e.target.value)}
-                          className="w-full bg-slate-900 border border-slate-800 rounded-xl py-2.5 px-3.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 font-bold"
+                          className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl py-2.5 px-3.5 text-xs text-slate-850 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-cyan-500 font-bold"
                           placeholder="Örn: DentGroup Kadıköy Polikliniği"
                         />
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Klinik İletişim Telefonu</label>
+                        <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block">Klinik İletişim Telefonu</label>
                         <input
                           type="text"
                           value={clinicPhone}
                           onChange={e => setClinicPhone(e.target.value)}
-                          className="w-full bg-slate-900 border border-slate-800 rounded-xl py-2.5 px-3.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 font-bold"
+                          className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl py-2.5 px-3.5 text-xs text-slate-850 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-cyan-500 font-bold"
                           placeholder="Örn: 0216 444 3 444"
                         />
                       </div>
 
                       {/* Theme Colors selector */}
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Kurumsal Tema Rengi (HEX)</label>
+                        <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block">Kurumsal Tema Rengi (HEX)</label>
 
                         <div className="flex gap-2">
                           <input
                             type="color"
                             value={clinicTheme}
                             onChange={e => setClinicTheme(e.target.value)}
-                            className="bg-slate-900 border border-slate-800 rounded-xl h-10 w-16 p-1 cursor-pointer focus:outline-none"
+                            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl h-10 w-16 p-1 cursor-pointer focus:outline-none"
                           />
                           <input
                             type="text"
                             value={clinicTheme}
                             onChange={e => setClinicTheme(e.target.value)}
-                            className="flex-1 bg-slate-900 border border-slate-800 rounded-xl py-2.5 px-3.5 text-xs text-white focus:outline-none focus:border-cyan-500 font-mono font-bold"
+                            className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl py-2.5 px-3.5 text-xs text-slate-850 dark:text-white focus:outline-none focus:border-cyan-500 font-mono font-bold"
                             placeholder="#3B82F6"
                           />
                         </div>
@@ -611,7 +609,7 @@ export default function ClinicAdminPortal({
                             <button
                               key={preset.color}
                               onClick={() => setClinicTheme(preset.color)}
-                              className="text-[10px] px-2.5 py-1 rounded-lg border border-slate-800 hover:border-slate-500 text-slate-300 flex items-center gap-1.5 transition-all text-left font-semibold cursor-pointer"
+                              className="text-[10px] px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-slate-405 dark:hover:border-slate-550 text-slate-600 dark:text-slate-300 flex items-center gap-1.5 transition-all text-left font-semibold cursor-pointer"
                             >
                               <span className="h-3 w-3 rounded-full inline-block" style={{ backgroundColor: preset.color }} />
                               {preset.name}
@@ -622,7 +620,7 @@ export default function ClinicAdminPortal({
 
                       {/* Logo Icon Selector */}
                       <div className="space-y-1.5">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Klinik Sembolü (Emoji Seçici)</label>
+                        <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block">Klinik Sembolü (Emoji Seçici)</label>
                         <div className="grid grid-cols-6 gap-2 text-center">
                           {['🦷', '✨', '⚡', '🏥', '🔬', '🤍', '⭐', '🧬', '🛡️', '🩺', '🏆', '💎'].map(emoji => (
                             <button
@@ -630,8 +628,8 @@ export default function ClinicAdminPortal({
                               type="button"
                               onClick={() => setClinicLogo(emoji)}
                               className={`h-11 rounded-xl text-lg flex items-center justify-center border font-bold ${clinicLogo === emoji
-                                ? 'bg-slate-900 border-white text-white'
-                                : 'bg-slate-900/50 border-slate-800 text-slate-400 hover:text-white hover:border-slate-705'
+                                ? 'bg-slate-100 dark:bg-slate-900 border-slate-400 dark:border-white text-slate-900 dark:text-white'
+                                : 'bg-white dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700'
                                 }`}
                             >
                               {emoji}
@@ -643,14 +641,14 @@ export default function ClinicAdminPortal({
                     </div>
 
                     {isSavedAlert && (
-                      <div className="bg-emerald-950/40 border border-emerald-990/40 text-emerald-400 rounded-xl p-3 text-xs font-bold">
+                      <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/30 text-emerald-600 dark:text-emerald-450 rounded-xl p-3 text-xs font-bold">
                         ✓ Klinik kurumsal ayarları başarıyla kaydedildi. Markalama değişiklikleri tüm personel ekranlarına yansıtıldı.
                       </div>
                     )}
 
                     <button
                       onClick={saveClinicSettings}
-                      className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black py-3 px-6 rounded-xl transition-all shadow-md shadow-emerald-555/5 cursor-pointer flex items-center gap-1.5"
+                      className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black py-3 px-6 rounded-xl transition-all shadow-md shadow-emerald-500/5 cursor-pointer flex items-center gap-1.5"
                     >
                       <Check className="h-4 w-4 text-white" />
                       YAPILANDIRMALARI KAYDET
@@ -658,11 +656,11 @@ export default function ClinicAdminPortal({
                   </div>
 
                   {/* Brand Preview Panel */}
-                  <div className="lg:col-span-5 bg-slate-900/45 p-6 rounded-2xl border border-slate-805 space-y-4 flex flex-col justify-between">
+                  <div className="lg:col-span-5 bg-slate-100/60 dark:bg-slate-900/45 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4 flex flex-col justify-between">
                     <div>
-                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block mb-2">Canlı Görünüm Önizleme</span>
+                      <span className="text-[10px] text-slate-500 dark:text-slate-450 font-bold uppercase tracking-wider block mb-2">Canlı Görünüm Önizleme</span>
 
-                      <div className="bg-slate-950 p-5 rounded-2xl space-y-4 relative border border-slate-800 overflow-hidden shadow-lg">
+                      <div className="bg-white dark:bg-slate-950 p-5 rounded-2xl space-y-4 relative border border-slate-200 dark:border-slate-800 overflow-hidden shadow-lg">
                         <div className="absolute left-0 top-0 bottom-0 w-1.5" style={{ backgroundColor: clinicTheme }} />
 
                         <div className="flex items-center space-x-3 select-none">
@@ -673,15 +671,15 @@ export default function ClinicAdminPortal({
                             <span>{clinicLogo}</span>
                           </div>
                           <div>
-                            <h4 className="text-xs font-black text-white">{clinicName || 'Klinik Kurumsal Adı'}</h4>
-                            <p className="text-[9px] text-slate-500 font-bold font-mono mt-0.5">Telefon: {clinicPhone || 'Tanımlanmamış'}</p>
+                            <h4 className="text-xs font-black text-slate-850 dark:text-white">{clinicName || 'Klinik Kurumsal Adı'}</h4>
+                            <p className="text-[9px] text-slate-505 dark:text-slate-400 font-bold font-mono mt-0.5">Telefon: {clinicPhone || 'Tanımlanmamış'}</p>
                           </div>
                         </div>
 
-                        <div className="bg-slate-900 border border-slate-900 p-3.5 rounded-xl space-y-2">
-                          <div className="w-1/3 bg-slate-800 h-2 rounded animate-pulse" />
-                          <div className="w-full bg-slate-800 h-1.5 rounded animate-pulse" />
-                          <div className="w-4/5 bg-slate-800 h-1.5 rounded animate-pulse" />
+                        <div className="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-900 p-3.5 rounded-xl space-y-2">
+                          <div className="w-1/3 bg-slate-200 dark:bg-slate-800 h-2 rounded animate-pulse" />
+                          <div className="w-full bg-slate-250 dark:bg-slate-800 h-1.5 rounded animate-pulse" />
+                          <div className="w-4/5 bg-slate-250 dark:bg-slate-800 h-1.5 rounded animate-pulse" />
                         </div>
 
                         <button
@@ -693,7 +691,7 @@ export default function ClinicAdminPortal({
                       </div>
                     </div>
 
-                    <div className="bg-slate-950 border border-slate-850 p-4 rounded-xl text-[11px] text-slate-450 leading-relaxed">
+                    <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 p-4 rounded-xl text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
                       💡 <strong>Tasarım Notu:</strong> Tema rengi veritabanında hex kodu olarak saklanır. Klinik çalışanı (Hekim, Sekreter, Hasta) sisteme giriş yaptığı andan itibaren portal bileşenleri, kartlar ve butonlar yukarıda seçtiğiniz marka renk skalasına bürünür.
                     </div>
                   </div>
@@ -746,48 +744,48 @@ export default function ClinicAdminPortal({
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-slate-950 border border-slate-800 rounded-2xl p-6 sm:p-7 w-full max-w-md text-white shadow-2xl relative"
+              className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-7 w-full max-w-md text-slate-800 dark:text-white shadow-2xl relative"
             >
 
-              <div className="flex items-center gap-2 mb-4 border-b border-slate-800 pb-3">
-                <Users className="h-5 w-5 text-cyan-400" />
-                <h3 className="text-sm font-black text-white uppercase tracking-wider">Klinik Kullanıcısı Tanımla</h3>
+              <div className="flex items-center gap-2 mb-4 border-b border-slate-100 dark:border-slate-800 pb-3">
+                <Users className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
+                <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Klinik Kullanıcısı Tanımla</h3>
               </div>
 
               <form onSubmit={handleCreateUserSubmit} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Kullanıcı Tam Adı</label>
+                  <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block">Kullanıcı Tam Adı</label>
                   <input
                     type="text"
                     value={newUserName}
                     onChange={e => setNewUserName(e.target.value)}
                     required
                     disabled={actionLoading}
-                    className="w-full bg-slate-900/80 border border-slate-700 focus:border-cyan-500 rounded-xl py-2.5 px-3.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-cyan-500 disabled:opacity-50"
+                    className="w-full bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 focus:border-cyan-500 rounded-xl py-2.5 px-3.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-cyan-500 disabled:opacity-50"
                     placeholder="Ad Soyad"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-300 uppercase tracking-widest block font-mono">Klinik E-Postası (Login Email)</label>
+                  <label className="text-[10px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest block font-mono">Klinik E-Postası (Login Email)</label>
                   <input
                     type="email"
                     value={newUserEmail}
                     onChange={e => setNewUserEmail(e.target.value)}
                     required
                     disabled={actionLoading}
-                    className="w-full bg-slate-900/80 border border-slate-700 focus:border-cyan-500 rounded-xl py-2.5 px-3.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-cyan-500 disabled:opacity-50"
+                    className="w-full bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 focus:border-cyan-500 rounded-xl py-2.5 px-3.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-cyan-500 disabled:opacity-50"
                     placeholder="doc.ahmet@klinik.com"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Sistem Rol Yetkisi</label>
+                  <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block">Sistem Rol Yetkisi</label>
                   <select
                     value={newUserRole}
                     onChange={e => setNewUserRole(e.target.value as any)}
                     disabled={actionLoading}
-                    className="w-full bg-slate-900 border border-slate-700 focus:border-cyan-500 rounded-xl py-2.5 px-3.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500 font-bold disabled:opacity-50"
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-cyan-500 rounded-xl py-2.5 px-3.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-cyan-500 font-bold disabled:opacity-50"
                   >
                     <option value="doctor">Hekim (Doctor)</option>
                     <option value="secretary">Sekreter (Secretary)</option>
@@ -796,32 +794,32 @@ export default function ClinicAdminPortal({
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Kullanıcı Telefon Numarası</label>
+                  <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block">Kullanıcı Telefon Numarası</label>
                   <input
                     type="text"
                     value={newUserPhone}
                     onChange={e => setNewUserPhone(e.target.value)}
                     disabled={actionLoading}
-                    className="w-full bg-slate-900/80 border border-slate-700 focus:border-cyan-500 rounded-xl py-2.5 px-3.5 text-xs text-white placeholder-slate-600 focus:outline-none disabled:opacity-50"
+                    className="w-full bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 focus:border-cyan-500 rounded-xl py-2.5 px-3.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none disabled:opacity-50"
                     placeholder="0532 000 00 00"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-amber-400 uppercase tracking-widest block font-mono">Giriş Geçici Şifresi</label>
+                  <label className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest block font-mono">Giriş Geçici Şifresi</label>
                   <input
                     type="text"
                     value={newUserTemporaryPassword}
                     onChange={e => setNewUserTemporaryPassword(e.target.value)}
                     required
                     disabled={actionLoading}
-                    className="w-full bg-slate-900/80 border border-amber-600/50 focus:border-amber-400 rounded-xl py-2.5 px-3.5 text-xs text-amber-200 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-amber-500 font-mono font-bold disabled:opacity-50"
+                    className="w-full bg-amber-50/30 dark:bg-slate-900/80 border border-amber-300 dark:border-amber-600/50 focus:border-amber-400 rounded-xl py-2.5 px-3.5 text-xs text-amber-900 dark:text-amber-200 placeholder-slate-400 dark:placeholder-slate-650 focus:outline-none focus:ring-1 focus:ring-amber-500 font-mono font-bold disabled:opacity-50"
                     placeholder="Örn: GECICI123"
                   />
                   <p className="text-[9px] text-slate-500 font-sans mt-0.5">Kullanıcının ilk girişte kullanarak kendi şifresini belirleyeceği şifre.</p>
                 </div>
 
-                <div className="bg-slate-900 border border-slate-800 p-3 rounded-xl text-[11px] text-slate-450 leading-relaxed font-semibold">
+                <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3 rounded-xl text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">
                   ⚡ <strong>UYARI:</strong> Hesap oluşturulduğunda sistem otomatik geçici şifre atar ve kullanıcı ilk girişinde şifresini yenileyerek sisteme giriş yapabilir.
                 </div>
 
@@ -829,7 +827,7 @@ export default function ClinicAdminPortal({
                   <button
                     type="submit"
                     disabled={actionLoading}
-                    className={`flex-1 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-black py-2.5 rounded-xl text-xs tracking-wider transition-colors text-center flex items-center justify-center gap-1.5 ${actionLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                    className={`flex-1 bg-cyan-600 hover:bg-cyan-500 text-white font-black py-2.5 rounded-xl text-xs tracking-wider transition-colors text-center flex items-center justify-center gap-1.5 ${actionLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                       }`}
                     style={{ backgroundColor: currentClinic.themeColor }}
                   >
@@ -846,7 +844,7 @@ export default function ClinicAdminPortal({
                     type="button"
                     disabled={actionLoading}
                     onClick={() => setShowAddUserModal(false)}
-                    className="bg-slate-900 hover:bg-slate-800 text-slate-400 px-4 py-2.5 rounded-xl text-xs font-bold transition-colors disabled:opacity-50"
+                    className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 px-4 py-2.5 rounded-xl text-xs font-bold transition-colors disabled:opacity-50"
                   >
                     İptal Et
                   </button>

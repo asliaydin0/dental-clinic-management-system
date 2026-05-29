@@ -1099,7 +1099,7 @@ export default function DoctorPortal({
   const textTitle = isDark ? 'text-white' : 'text-slate-900 font-extrabold';
   const textMuted = isDark ? 'text-slate-400' : 'text-slate-500 font-semibold';
   const borderLine = isDark ? 'border-[#1e293b]' : 'border-slate-100/80';
-  const bgInput = isDark ? 'bg-[#090d16] border-[#223049] text-white focus:border-indigo-505' : 'bg-slate-50 border-slate-200/80 text-slate-900 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all duration-300';
+  const bgInput = isDark ? 'bg-[#090d16] border-[#223049] text-white focus:border-indigo-500' : 'bg-slate-50 border-slate-200/80 text-slate-900 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all duration-300';
   const bgSelect = isDark ? 'bg-[#182335] text-white border-[#2c3d59]' : 'bg-slate-50 text-slate-900 border-slate-200 focus:ring-2 focus:ring-indigo-500/10';
 
   const renderTeTeMasasiHeader = () => {
@@ -1124,7 +1124,7 @@ export default function DoctorPortal({
           <div className="space-y-1 text-center sm:text-left">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2">
               <span className={`text-sm font-black tracking-tight ${textTitle}`}>{activePatient.name}</span>
-              <span className="inline-block self-center sm:self-auto text-[9.5px] bg-[#2ed0e1]/10 text-cyan-405 text-cyan-500 border border-cyan-500/20 px-1.5 py-0.5 rounded font-mono font-bold leading-normal">
+              <span className="inline-block self-center sm:self-auto text-[9.5px] bg-[#2ed0e1]/10 text-cyan-500 border border-cyan-500/20 px-1.5 py-0.5 rounded font-mono font-bold leading-normal">
                 {activePatient.id}
               </span>
             </div>
@@ -1239,7 +1239,7 @@ export default function DoctorPortal({
 
           {/* Hızlı Bildirim Zili */}
           <div
-            className={`relative p-2.5 rounded-xl border cursor-pointer transition-all ${isDark ? 'bg-[#121c2c] hover:bg-[#1e2f46] text-indigo-300 border-[#1f3048]' : 'bg-slate-50 hover:bg-slate-105 text-indigo-600 border-slate-200'}`}
+            className={`relative p-2.5 rounded-xl border cursor-pointer transition-all ${isDark ? 'bg-[#121c2c] hover:bg-[#1e2f46] text-indigo-300 border-[#1f3048]' : 'bg-slate-50 hover:bg-slate-100 text-indigo-600 border-slate-200'}`}
             onClick={() => {
               appendLog('Presentation (UI)', 'Bildirim Zili Tıklandı', 'Kritik alarm tablosu gözden geçiriliyor.');
               toast.info("Klinik Alarm Sistemi: Sistem bağlantısı stabil, yeni acil çağrı mevcut değildir.");
@@ -1296,7 +1296,7 @@ export default function DoctorPortal({
               <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Gezinti Menüsü</span>
               <button
                 onClick={() => setSidebarOpen(false)}
-                className={`p-1.5 rounded-lg border ${isDark ? 'bg-[#152033] border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-205 text-slate-700'} cursor-pointer`}
+                className={`p-1.5 rounded-lg border ${isDark ? 'bg-[#152033] border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'} cursor-pointer`}
               >
                 <X className="h-4 w-4" />
               </button>
@@ -1418,23 +1418,23 @@ export default function DoctorPortal({
                   Yeni hasta hesabı veri tabanına Stored Procedure aracılığıyla başarıyla işlenmiştir. Hastanın ilk girişi için geçici erişim anahtarı aşağıdadır:
                 </p>
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-[#0d1522] border border-emerald-900/30 p-3.5 rounded-xl text-xs font-semibold">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-emerald-50/50 dark:bg-[#0d1522] border border-emerald-200 dark:border-emerald-900/30 p-3.5 rounded-xl text-xs font-semibold">
                   <div>
                     <span className="text-slate-500 text-[10px] block font-mono">AD SOYAD</span>
-                    <span className="text-white font-black">{credentialsModal.name}</span>
+                    <span className="text-slate-800 dark:text-white font-black">{credentialsModal.name}</span>
                   </div>
                   <div>
                     <span className="text-slate-500 text-[10px] block font-mono">TC NO (Giriş No)</span>
-                    <span className="text-white font-mono select-all font-bold">{credentialsModal.tc}</span>
+                    <span className="text-slate-800 dark:text-white font-mono select-all font-bold">{credentialsModal.tc}</span>
                   </div>
                   <div>
                     <span className="text-slate-500 text-[10px] block font-mono">E-POSTA</span>
-                    <span className="text-cyan-400 font-mono select-all font-bold">{credentialsModal.email}</span>
+                    <span className="text-cyan-600 dark:text-cyan-400 font-mono select-all font-bold">{credentialsModal.email}</span>
                   </div>
                   <div className="bg-amber-500/15 border border-amber-500/30 p-2.5 rounded-lg flex items-center justify-between">
                     <div>
                       <span className="text-amber-500 text-[9px] block font-black font-mono">GEÇİCİ ŞİFRE</span>
-                      <span className="text-white font-mono font-black tracking-widest">{credentialsModal.pass}</span>
+                      <span className="text-slate-800 dark:text-white font-mono font-black tracking-widest">{credentialsModal.pass}</span>
                     </div>
                     <button
                       onClick={() => {
@@ -2150,7 +2150,7 @@ export default function DoctorPortal({
                       return (
                         <div className="space-y-3">
                           {allTreatments.sort((a, b) => b.date.localeCompare(a.date)).map((tr, idx) => (
-                            <div key={idx} className={`p-4 rounded-xl border leading-relaxed font-semibold transition-all ${isDark ? 'bg-[#0f192b]/60 border-indigo-500/10 hover:border-indigo-500/20' : 'bg-slate-50 border-slate-205'}`}>
+                            <div key={idx} className={`p-4 rounded-xl border leading-relaxed font-semibold transition-all ${isDark ? 'bg-[#0f192b]/60 border-indigo-500/10 hover:border-indigo-500/20' : 'bg-slate-50 border-slate-200'}`}>
                               <div className="flex items-center justify-between border-b pb-2 mb-2 border-slate-700/10">
                                 <div className="flex items-center space-x-2">
                                   <span className="text-[11px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded px-2 py-0.5">Diş #{tr.toothId}</span>
@@ -2265,7 +2265,7 @@ export default function DoctorPortal({
                         appendLog('Presentation (UI)', 'Röntgen Yükleme', 'Bilgisayardan yeni .dicom / radiography dosyası seçildi.');
                         toast.info("X-Ray Dosya Yükleyici: Yerel bilgisayardan .DICOM uzantılı radyoloji dosyası seçin");
                       }}
-                      className={`w-full py-2.5 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all border cursor-pointer ${isDark ? 'bg-[#182335] text-indigo-400 border-indigo-550/30 hover:bg-[#1f2d44]' : 'bg-white hover:bg-slate-50 text-indigo-600 border-slate-205'
+                      className={`w-full py-2.5 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all border cursor-pointer ${isDark ? 'bg-[#182335] text-indigo-400 border-indigo-500/30 hover:bg-[#1f2d44]' : 'bg-white hover:bg-slate-50 text-indigo-600 border-slate-200'
                         }`}
                     >
                       <Camera className="h-4 w-4 text-indigo-500" />
@@ -2555,7 +2555,7 @@ export default function DoctorPortal({
                     ) : (
                       <div className="space-y-3">
                         {notificationsList.filter(n => n.patientId === activePatient.id).map((notif) => (
-                          <div key={notif.id} className={`p-4 rounded-xl border leading-relaxed font-semibold transition-all ${isDark ? 'bg-[#0f192b]/60 border-indigo-500/10' : 'bg-slate-50 border-slate-205'}`}>
+                          <div key={notif.id} className={`p-4 rounded-xl border leading-relaxed font-semibold transition-all ${isDark ? 'bg-[#0f192b]/60 border-indigo-500/10' : 'bg-slate-50 border-slate-200'}`}>
                             <div className="flex justify-between items-center border-b pb-2 mb-2 border-slate-700/10">
                               <span className={`text-[11px] font-black ${textTitle}`}>{notif.title}</span>
                               <span className="text-[9.5px] text-slate-550 font-mono">{notif.date}</span>
@@ -2658,7 +2658,7 @@ export default function DoctorPortal({
                       <h3 className={`text-xs font-black tracking-widest uppercase ${textTitle}`}>MEVCUT TEDAVİ YOL HARİTASI</h3>
                       <p className={`text-[10px] font-mono ${textMuted}`}>Hastanın ekranında anlık yayınlanan kronolojik tedavi planı</p>
                     </div>
-                    <span className="text-xs font-extrabold text-indigo-405 font-mono">
+                    <span className="text-xs font-extrabold text-indigo-400 font-mono">
                       Hasta: {activePatient.name}
                     </span>
                   </div>
@@ -2770,7 +2770,7 @@ export default function DoctorPortal({
                 {/* Sağ: Önerilen Akıllı Sorular / Hekim Hazır Promptları */}
                 <div className={`${bgCard} border rounded-2xl p-5 lg:col-span-4 space-y-4`}>
 
-                  <div className="border-b border-slate-705/20 pb-2">
+                  <div className="border-b border-slate-700/20 pb-2">
                     <span className="text-[10px] font-mono font-black text-indigo-400 block tracking-widest uppercase">AKILLI REFERANSLAR</span>
                     <h3 className={`text-xs font-black truncate mt-1 ${textTitle}`}>HAZIR KLİNİK PROMPTLAR</h3>
                   </div>

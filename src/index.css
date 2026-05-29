@@ -5,6 +5,23 @@
 
 @theme {
   --font-sans: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-clinic-accent: var(--color-clinic-accent);
+
+  --color-indigo-50: color-mix(in srgb, var(--color-clinic-accent) 5%, #ffffff);
+  --color-indigo-100: color-mix(in srgb, var(--color-clinic-accent) 10%, #ffffff);
+  --color-indigo-200: color-mix(in srgb, var(--color-clinic-accent) 25%, #ffffff);
+  --color-indigo-300: color-mix(in srgb, var(--color-clinic-accent) 45%, #ffffff);
+  --color-indigo-400: color-mix(in srgb, var(--color-clinic-accent) 70%, #ffffff);
+  --color-indigo-500: var(--color-clinic-accent);
+  --color-indigo-600: color-mix(in srgb, var(--color-clinic-accent) 85%, #000000);
+  --color-indigo-700: color-mix(in srgb, var(--color-clinic-accent) 70%, #000000);
+  --color-indigo-800: color-mix(in srgb, var(--color-clinic-accent) 55%, #000000);
+  --color-indigo-900: color-mix(in srgb, var(--color-clinic-accent) 40%, #000000);
+  --color-indigo-950: color-mix(in srgb, var(--color-clinic-accent) 25%, #000000);
+}
+
+:root {
+  --color-clinic-accent: #3B82F6;
 }
 
 @layer base {

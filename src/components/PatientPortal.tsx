@@ -762,7 +762,7 @@ export default function PatientPortal({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
 
           <div onClick={() => setActiveTab('home')} className="flex items-center space-x-3 cursor-pointer group">
-            <div className="bg-gradient-to-tr from-indigo-505 from-indigo-500 to-sky-450 to-sky-400 p-2 rounded-xl text-white shadow shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+            <div className="bg-gradient-to-tr from-indigo-500 to-sky-400 p-2 rounded-xl text-white shadow shadow-indigo-500/20 group-hover:scale-105 transition-transform">
               <Sparkles className="h-5 w-5" />
             </div>
             <div className="flex flex-col">
@@ -827,7 +827,7 @@ export default function PatientPortal({
                       initial={{ opacity: 0, y: 12, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 12, scale: 0.95 }}
-                      className={`absolute right-0 mt-3 w-80 rounded-2xl border shadow-2xl z-40 p-4 ${isDark ? 'bg-[#0e1626] border-[#1e293b] text-white' : 'bg-white border-slate-200 text-slate-805'
+                      className={`absolute right-0 mt-3 w-80 rounded-2xl border shadow-2xl z-40 p-4 ${isDark ? 'bg-[#0e1626] border-[#1e293b] text-white' : 'bg-white border-slate-200 text-slate-800'
                         }`}
                       id="notifications-dropdown"
                     >
@@ -1121,7 +1121,7 @@ export default function PatientPortal({
                     <div className="flex items-center gap-4 justify-between sm:justify-end">
                       {/* Compact Progress gauge */}
                       <div className="flex flex-col items-end space-y-1">
-                        <div className="flex items-center gap-1.5 text-xs font-extrabold text-indigo-405 text-indigo-400">
+                        <div className="flex items-center gap-1.5 text-xs font-extrabold text-indigo-400">
                           <Award className="h-4 w-4 text-emerald-500" />
                           <span>Tedavi İlerlemesi: %{progressPercent}</span>
                         </div>
@@ -1131,7 +1131,7 @@ export default function PatientPortal({
                       </div>
 
                       {/* Expand/Collapse Button */}
-                      <div className="p-2 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 group-hover:bg-indigo-500/10 group-hover:border-indigo-505/20 transition-all">
+                      <div className="p-2 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 group-hover:bg-indigo-500/10 group-hover:border-indigo-500/20 transition-all">
                         {showRoadmap ? (
                           <ChevronUp className="h-4 w-4 text-indigo-400" />
                         ) : (
@@ -1266,7 +1266,7 @@ export default function PatientPortal({
                         <span className={`h-2.5 w-2.5 rounded-full ${brushingLogs.some(l => l.date === new Date().toISOString().split('T')[0]) ? 'bg-emerald-500' : 'bg-slate-400 animate-pulse'}`} />
                         <div>
                           <span className="text-[9px] text-slate-400 block leading-none font-bold uppercase">BUGÜN</span>
-                          <span className="font-extrabold mt-1 block text-slate-705 dark:text-slate-100">
+                          <span className="font-extrabold mt-1 block text-slate-700 dark:text-slate-100">
                             {brushingLogs.filter(l => l.date === new Date().toISOString().split('T')[0]).length > 0
                               ? `${brushingLogs.filter(l => l.date === new Date().toISOString().split('T')[0]).length} Defa`
                               : "Kayıt Yok"}
@@ -1278,7 +1278,7 @@ export default function PatientPortal({
                         <Award className="h-5 w-5 text-amber-500" />
                         <div>
                           <span className="text-[9px] text-slate-400 block leading-none font-bold uppercase">AKTİF SERİ</span>
-                          <span className="font-extrabold mt-1 block text-slate-705 dark:text-slate-100">4 Gün</span>
+                          <span className="font-extrabold mt-1 block text-slate-700 dark:text-slate-100">4 Gün</span>
                         </div>
                       </div>
                     </div>
@@ -1297,7 +1297,7 @@ export default function PatientPortal({
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
-                        className="space-y-4 p-4 rounded-xl border border-indigo-500/20 bg-indigo-505/5 bg-indigo-500/5 mt-2 text-xs"
+                        className="space-y-4 p-4 rounded-xl border border-indigo-500/20 bg-indigo-500/5 mt-2 text-xs"
                       >
                         <div className="flex justify-between items-center pb-2 border-b border-indigo-500/10">
                           <span className="font-bold text-indigo-400 text-xs">Hijyen Detaylarını Girin</span>
@@ -1399,7 +1399,7 @@ export default function PatientPortal({
                     <div className="flex items-center justify-between border-b pb-2.5 border-slate-500/10">
                       <div className="flex items-center space-x-2">
                         <div className="p-2 bg-[#2cbd85]/10 text-emerald-400 rounded-xl">
-                          <Activity className="h-5 w-5 text-emerald-505 text-emerald-450" />
+                          <Activity className="h-5 w-5 text-emerald-500" />
                         </div>
                         <h3 className={`text-sm font-bold ${textTitle}`}>Fırçalama Analiz Çizelgem</h3>
                       </div>
@@ -1648,7 +1648,7 @@ export default function PatientPortal({
                         } else if (toothData.status === 'treatment') {
                           toothColorState = 'bg-amber-500 text-[#090d16] border-amber-300';
                         } else if (toothData.status === 'completed') {
-                          toothColorState = 'bg-indigo-500 text-white border-indigo-305';
+                          toothColorState = 'bg-indigo-500 text-white border-indigo-300';
                         }
 
                         return (
@@ -1896,7 +1896,7 @@ export default function PatientPortal({
                       <span className="text-[10px] text-slate-450 text-slate-500 font-medium">Hekim Simülasyon Şablonu:</span>
                       <button
                         onClick={runDemoScan}
-                        className="bg-slate-900 border border-slate-800 text-indigo-400 text-[10px] font-bold py-1.5 px-3.5 rounded-xl transition-all hover:bg-indigo-500/10 cursor-pointer"
+                        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-indigo-650 dark:text-indigo-400 text-[10px] font-bold py-1.5 px-3.5 rounded-xl transition-all hover:bg-slate-50 dark:hover:bg-indigo-500/10 cursor-pointer"
                         id="btn-rundemoscan"
                       >
                         Örnek Röntgeni Taramayı Başlat
@@ -2168,7 +2168,7 @@ export default function PatientPortal({
 
                       <div className="p-3 bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-slate-100 dark:border-slate-850">
                         <span className="text-[10px] text-slate-500 font-semibold block mb-1">TAM ADI</span>
-                        <span className="text-slate-705 dark:text-slate-200 font-bold">{patientRecord?.name || 'Selin Aydın'}</span>
+                        <span className="text-slate-700 dark:text-slate-200 font-bold">{patientRecord?.name || 'Selin Aydın'}</span>
                       </div>
 
                       <div className="p-3 bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-slate-100 dark:border-slate-850">
