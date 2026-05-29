@@ -220,21 +220,43 @@ export default function DoctorPortal({
   const [newTaskText, setNewTaskText] = useState('');
   const [registerLoading, setRegisterLoading] = useState(false);
 
+  // New scheduler & action states
+  const [doctorsList, setDoctorsList] = useState<any[]>([]);
+  const [showAddAppModal, setShowAddAppModal] = useState<boolean>(false);
+  const [showActionModal, setShowActionModal] = useState<boolean>(false);
+  const [selectedAppForAction, setSelectedAppForAction] = useState<Appointment | null>(null);
+  const [newAppPatientId, setNewAppPatientId] = useState<string>('');
+  const [newAppDoctorId, setNewAppDoctorId] = useState<string>('');
+
   useEffect(() => {
     localStorage.setItem('dentsai_doctor_tasks_v2', JSON.stringify(doctorTasks));
   }, [doctorTasks]);
 
   const fetchAppointments = async () => {
     try {
-      const response = await fetch('http://localhost:8000/appointments/');
+      let url = 'http://localhost:8000/appointments/';
+      const params = new URLSearchParams();
+      if (currentUser?.clinicId && currentUser.clinicId !== 'system') {
+        params.append('clinic_id', currentUser.clinicId);
+      } else if (clinicId && clinicId !== 'system') {
+        params.append('clinic_id', clinicId);
+      }
+      const queryString = params.toString();
+      if (queryString) {
+        url += `?${queryString}`;
+      }
+
+      const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
         if (Array.isArray(data)) {
           const mapped: Appointment[] = data.map((app: any) => {
             const patientObj = patientsList.find(p => p.id === app.patient_id);
-            const patientName = patientObj ? patientObj.name : 'Kayıtlı Hasta';
-            const docObj = mockUsers.find(u => u.id === app.doctor_id);
-            const doctorName = docObj ? docObj.name : (doctorProfile.name || 'Hekim');
+            const patientName = app.patient_name || (patientObj ? patientObj.name : 'Kayıtlı Hasta');
+            
+            const docObj = doctorsList.find(d => d.user_id === app.doctor_id) || mockUsers.find(u => u.id === app.doctor_id);
+            const doctorName = app.doctor_name || (docObj ? docObj.name : (doctorProfile.name || 'Hekim'));
+
             return {
               id: app.id,
               patientId: app.patient_id,
@@ -257,7 +279,7 @@ export default function DoctorPortal({
 
   useEffect(() => {
     fetchAppointments();
-  }, [patientsList, mockUsers]);
+  }, [patientsList, doctorsList, mockUsers, currentUser, clinicId]);
 
   useEffect(() => {
     const fetchPatients = async () => {
@@ -308,7 +330,35 @@ export default function DoctorPortal({
         console.error("Kayıtlı hastalar veritabanından yüklenirken hata oluştu:", err);
       }
     };
+
+    const fetchDoctors = async () => {
+      try {
+        let url = 'http://localhost:8000/doctors/';
+        const params = new URLSearchParams();
+        if (currentUser?.clinicId && currentUser.clinicId !== 'system') {
+          params.append('clinic_id', currentUser.clinicId);
+        } else if (clinicId && clinicId !== 'system') {
+          params.append('clinic_id', clinicId);
+        }
+        const queryString = params.toString();
+        if (queryString) {
+          url += `?${queryString}`;
+        }
+
+        const response = await fetch(url);
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data)) {
+            setDoctorsList(data);
+          }
+        }
+      } catch (err) {
+        console.error("Hekimler veritabanından yüklenirken hata oluştu:", err);
+      }
+    };
+
     fetchPatients();
+    fetchDoctors();
   }, [currentUser, clinicId]);
 
   const [doctorProfile, setDoctorProfile] = useState(() => {
@@ -1017,8 +1067,12 @@ export default function DoctorPortal({
   // Form submit handler - Randevu Ekleme
   const handleScheduleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!activePatient) {
-      toast.error("Lütfen önce bir hasta seçiniz!");
+    if (!newAppPatientId) {
+      toast.error("Lütfen bir hasta seçiniz!");
+      return;
+    }
+    if (!newAppDoctorId) {
+      toast.error("Lütfen bir hekim seçiniz!");
       return;
     }
 
@@ -1031,7 +1085,6 @@ export default function DoctorPortal({
     }
 
     const newId = `APP-${Math.floor(200 + Math.random() * 800)}`;
-    const doctorId = currentUser?.id || 'usr-3';
 
     try {
       const response = await fetch('http://localhost:8000/appointments/', {
@@ -1041,8 +1094,8 @@ export default function DoctorPortal({
         },
         body: JSON.stringify({
           id: newId,
-          patient_id: activePatient.id,
-          doctor_id: doctorId,
+          patient_id: newAppPatientId,
+          doctor_id: newAppDoctorId,
           appointment_date: newAppDate,
           appointment_time: newAppTime,
           appointment_type: newAppType,
@@ -1051,7 +1104,11 @@ export default function DoctorPortal({
       });
 
       if (response.ok) {
-        toast.success(`Başarılı: Sayın ${activePatient.name} için randevu planlandı!`);
+        const patientNameSelected = patientsList.find(p => p.id === newAppPatientId)?.name || 'Hasta';
+        toast.success(`Başarılı: Sayın ${patientNameSelected} için randevu planlandı!`);
+        setShowAddAppModal(false);
+        setNewAppPatientId('');
+        setNewAppDoctorId('');
         await fetchAppointments();
       } else {
         const errData = await response.json();
@@ -1060,6 +1117,53 @@ export default function DoctorPortal({
     } catch (err) {
       console.error('Randevu kaydetme hatası:', err);
       toast.error('Randevu veritabanına kaydedilirken hata oluştu.');
+    }
+  };
+
+  const handleUpdateAppStatus = async (appId: string, newStatus: string) => {
+    try {
+      const response = await fetch(`http://localhost:8000/appointments/${appId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          status: newStatus
+        })
+      });
+      if (response.ok) {
+        toast.success(`Randevu durumu başarıyla '${newStatus}' olarak güncellendi.`);
+        setShowActionModal(false);
+        setSelectedAppForAction(null);
+        await fetchAppointments();
+      } else {
+        const errData = await response.json();
+        toast.error(`Randevu güncellenemedi: ${JSON.stringify(errData.detail || errData)}`);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Randevu güncellenirken hata oluştu.");
+    }
+  };
+
+  const handleDeleteApp = async (appId: string) => {
+    if (!window.confirm("Bu randevuyu silmek istediğinize emin misiniz?")) return;
+    try {
+      const response = await fetch(`http://localhost:8000/appointments/${appId}`, {
+        method: 'DELETE'
+      });
+      if (response.ok) {
+        toast.success("Randevu başarıyla silindi.");
+        setShowActionModal(false);
+        setSelectedAppForAction(null);
+        await fetchAppointments();
+      } else {
+        const errData = await response.json();
+        toast.error(`Randevu silinemedi: ${JSON.stringify(errData.detail || errData)}`);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Randevu silinirken hata oluştu.");
     }
   };
 
@@ -2467,99 +2571,62 @@ export default function DoctorPortal({
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-                {/* Sol: Planlayıcı Formu */}
-                <div className={`${bgCard} border rounded-2xl p-5 lg:col-span-5 space-y-4`}>
-
+                {/* Sol Column: Summary / Quick Stats */}
+                <div className={`${bgCard} border ${borderLine} rounded-2xl p-5 lg:col-span-3 space-y-4`}>
                   <div className="border-b border-slate-700/20 pb-3">
                     <h3 className={`text-xs font-black tracking-widest uppercase flex items-center gap-2 ${textTitle}`}>
-                      <Calendar className="h-4 w-4 text-indigo-500" />
-                      YENİ RANDEVU PROGRAMLAYICI
+                      <Activity className="h-4 w-4 text-indigo-500" />
+                      RANDEVU ÖZETİ
                     </h3>
-                    <p className={`text-[10px] font-mono ${textMuted}`}>BLL iş kuralları ile müsaitlik doğrulama modülü</p>
+                    <p className={`text-[10px] font-mono ${textMuted}`}>Klinik randevu istatistikleri</p>
                   </div>
 
-                  <form onSubmit={handleScheduleSubmit} className="space-y-4 leading-relaxed font-semibold">
-
-                    <div>
-                      <span className="text-[10px] text-slate-550 font-black uppercase tracking-wider block mb-1">Seçili Hasta Bilgisi</span>
-                      {activePatient ? (
-                        <div className={`p-3 rounded-xl flex items-center space-x-2.5 font-extrabold ${isDark ? 'bg-[#060a12]' : 'bg-slate-50 border'}`}>
-                          <Avatar
-                            url={activePatient.avatarUrl}
-                            name={activePatient.name}
-                            className="h-8 w-8 rounded-lg border border-slate-700/20"
-                            iconClassName="h-4 w-4"
-                          />
-                          <div>
-                            <p className={`text-xs ${textTitle}`}>{activePatient.name}</p>
-                            <p className="text-[10px] text-slate-500">{activePatient.phone}</p>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className={`p-3 rounded-xl flex items-center space-x-2.5 font-extrabold ${isDark ? 'bg-[#060a12]' : 'bg-slate-50 border'} text-rose-500`}>
-                          <AlertTriangle className="h-4 w-4" />
-                          <span className="text-xs">Lütfen listeden bir hasta seçiniz!</span>
-                        </div>
-                      )}
+                  <div className="grid grid-cols-1 gap-3">
+                    <div className={`p-4 rounded-xl border ${borderLine} ${isDark ? 'bg-[#080d16]' : 'bg-slate-50'}`}>
+                      <span className="text-[10px] text-slate-500 font-bold block">Toplam Randevu</span>
+                      <span className={`text-xl font-black ${textTitle}`}>{appointmentsList.length}</span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className={`text-[10px] font-black uppercase ${textTitle} block mb-1`}>Randevu Tarihi</label>
-                        <input
-                          type="date"
-                          required
-                          value={newAppDate}
-                          onChange={e => setNewAppDate(e.target.value)}
-                          className={`w-full text-xs font-bold p-3 rounded-xl focus:outline-none ${bgInput}`}
-                        />
-                      </div>
-                      <div>
-                        <label className={`text-[10px] font-black uppercase ${textTitle} block mb-1`}>Randevu Saati</label>
-                        <input
-                          type="time"
-                          required
-                          value={newAppTime}
-                          onChange={e => setNewAppTime(e.target.value)}
-                          className={`w-full text-xs font-bold p-3 rounded-xl focus:outline-none ${bgInput}`}
-                        />
-                      </div>
+                    <div className={`p-4 rounded-xl border ${borderLine} ${isDark ? 'bg-[#080d16]' : 'bg-slate-50'}`}>
+                      <span className="text-[10px] text-amber-500 font-bold block">Bekleyen</span>
+                      <span className="text-xl font-black text-amber-550">{appointmentsList.filter(a => a.status === 'Bekliyor').length}</span>
                     </div>
 
-                    <div>
-                      <label className={`text-[10px] font-black uppercase ${textTitle} block mb-1`}>Randevu Açıklaması / Tedavi Alt Türü</label>
-                      <input
-                        type="text"
-                        required
-                        value={newAppType}
-                        onChange={e => setNewAppType(e.target.value)}
-                        className={`w-full text-xs font-semibold p-3 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500/20 ${bgInput}`}
-                        placeholder="Örn: 14 Nolu dişe implant restorasyonu muayenesi"
-                      />
+                    <div className={`p-4 rounded-xl border ${borderLine} ${isDark ? 'bg-[#080d16]' : 'bg-slate-50'}`}>
+                      <span className="text-[10px] text-emerald-500 font-bold block">Tamamlanan</span>
+                      <span className="text-xl font-black text-emerald-450">{appointmentsList.filter(a => a.status === 'Tamamlandı').length}</span>
                     </div>
 
-                    <button
-                      type="submit"
-                      className="w-full bg-indigo-500 hover:bg-indigo-600 text-slate-950 font-black text-xs py-3 rounded-xl cursor-pointer shadow transition-all"
-                    >
-                      Klinik Randevusunu Programla
-                    </button>
+                    <div className={`p-4 rounded-xl border ${borderLine} ${isDark ? 'bg-[#080d16]' : 'bg-slate-50'}`}>
+                      <span className="text-[10px] text-rose-500 font-bold block">İptal Edilen</span>
+                      <span className="text-xl font-black text-rose-450">{appointmentsList.filter(a => a.status === 'İptal Edildi').length}</span>
+                    </div>
+                  </div>
 
-                  </form>
-
+                  <button
+                    onClick={() => {
+                      setNewAppPatientId('');
+                      setNewAppDoctorId('');
+                      setNewAppDate(new Date().toISOString().split('T')[0]);
+                      setNewAppTime('10:00');
+                      setNewAppType('Rutin Kontrol');
+                      setShowAddAppModal(true);
+                    }}
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-slate-950 font-black text-xs cursor-pointer shadow transition-all"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Yeni Randevu Ekle
+                  </button>
                 </div>
 
-                {/* Sağ: Randevu Takvimi Listesi */}
-                <div className={`${bgCard} border rounded-2xl p-5 lg:col-span-7 flex flex-col space-y-4`}>
+                {/* Sağ Column: Appointment List */}
+                <div className={`${bgCard} border ${borderLine} rounded-2xl p-5 lg:col-span-9 flex flex-col space-y-4`}>
 
                   <div className="border-b border-slate-700/20 pb-3 flex justify-between items-center">
                     <div>
-                      <h3 className={`text-xs font-black tracking-widest uppercase ${textTitle}`}>KLİNİK RANDEVU PLAN DEFTERİ</h3>
-                      <p className={`text-[10px] font-mono ${textMuted}`}>Hekimin güncel muayene seans çizelgesi</p>
+                      <h3 className={`text-xs font-black tracking-widest uppercase ${textTitle}`}>KLİNİK RANDEVU DEFTERİ</h3>
+                      <p className={`text-[10px] font-mono ${textMuted}`}>Hastaların güncel muayene ve operasyon planı</p>
                     </div>
-                    <span className="text-[10.5px] bg-[#12281a] text-emerald-400 font-extrabold px-3 py-1 rounded-lg">
-                      {appointmentsList.length} Toplam Randevu
-                    </span>
                   </div>
 
                   {/* Randevu Tablosu */}
@@ -2568,6 +2635,7 @@ export default function DoctorPortal({
                       <thead>
                         <tr className="border-b border-slate-750 text-[10px] font-mono text-slate-500 tracking-wider">
                           <th className="py-2.5">HASTA</th>
+                          <th className="py-2.5">HEKİM</th>
                           <th className="py-2.5">TARİH</th>
                           <th className="py-2.5">SAAT</th>
                           <th className="py-2.5">İŞLEM TÜRÜ</th>
@@ -2577,7 +2645,7 @@ export default function DoctorPortal({
                       <tbody>
                         {appointmentsList.length === 0 ? (
                           <tr>
-                            <td colSpan={5} className="py-8 text-center text-slate-500 italic text-xs">
+                            <td colSpan={6} className="py-8 text-center text-slate-500 italic text-xs">
                               Henüz randevu bulunmuyor.
                             </td>
                           </tr>
@@ -2585,17 +2653,42 @@ export default function DoctorPortal({
                           appointmentsList.map((app) => (
                             <tr
                               key={app.id}
-                              className={`border-b ${borderLine} text-xs font-semibold leading-relaxed ${isDark ? 'hover:bg-[#121c2c] text-slate-350' : 'hover:bg-slate-50 text-slate-700'}`}
+                              onClick={() => {
+                                setSelectedAppForAction(app);
+                                setShowActionModal(true);
+                              }}
+                              className={`border-b ${borderLine} text-xs font-semibold leading-relaxed cursor-pointer transition-colors ${
+                                isDark ? 'hover:bg-[#121c2c] text-slate-350' : 'hover:bg-slate-50 text-slate-700'
+                              }`}
                             >
                               <td className="py-3 font-bold">{app.patientName}</td>
+                              <td className="py-3 font-bold text-indigo-400">{app.doctorName}</td>
                               <td className="py-3 font-mono">{app.date}</td>
                               <td className="py-3 font-mono">{app.time}</td>
                               <td className="py-3">{app.type}</td>
                               <td className="py-3">
-                                <span className={`text-[9.5px] px-2.5 py-1 rounded font-black ${app.status === 'Bekliyor'
-                                  ? 'bg-amber-500/15 text-amber-500 border border-amber-550/20'
-                                  : 'bg-emerald-500/15 text-emerald-400 border border-emerald-555/20'
-                                  }`}>
+                                <span
+                                  className={`text-[9.5px] px-2.5 py-1 rounded font-black border`}
+                                  style={
+                                    app.status === 'Bekliyor'
+                                      ? {
+                                          color: 'var(--color-clinic-accent, #6366f1)',
+                                          borderColor: 'color-mix(in srgb, var(--color-clinic-accent, #6366f1) 20%, transparent)',
+                                          backgroundColor: 'color-mix(in srgb, var(--color-clinic-accent, #6366f1) 12%, transparent)'
+                                        }
+                                      : app.status === 'Tamamlandı'
+                                      ? {
+                                          color: '#10b981',
+                                          borderColor: 'rgba(16, 185, 129, 0.2)',
+                                          backgroundColor: 'rgba(16, 185, 129, 0.12)'
+                                        }
+                                      : {
+                                          color: '#f43f5e',
+                                          borderColor: 'rgba(244, 63, 94, 0.2)',
+                                          backgroundColor: 'rgba(244, 63, 94, 0.12)'
+                                        }
+                                  }
+                                >
                                   {app.status}
                                 </span>
                               </td>
@@ -3012,23 +3105,252 @@ export default function DoctorPortal({
             />
           )}
 
-          {/* TELEMETRİ / BULUT BAĞLANTISI TABAN FOOTER */}
-          {!hideSidebar && (
-            <footer className={`h-9 ${bgSidebar} px-6 flex items-center justify-between text-[10px] text-slate-520 shrink-0 font-mono border-t ${borderLine} transition-colors duration-200`}>
-            <div className="flex items-center space-x-3 font-semibold">
-              <span className="flex items-center gap-1.5 font-bold text-indigo-500">
-                <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 block animate-pulse"></span>
-                TÜRKİYE DENTAL E-SAĞLIK / DENTS-AI TELEMETRİ BULUT BAĞLANTISI ETKİN
-              </span>
-              <span>•</span>
-              <span>DİŞASİSTANIM v4.0</span>
-            </div>
-            <div>
-              <span className="font-semibold">© 2026 Dents AI • DişAsistanım Premium Entegrasyon</span>
-            </div>
-          </footer>
-          )}
+          {/* MODALS */}
+          <AnimatePresence>
+            {showAddAppModal && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50 overflow-y-auto"
+                onClick={() => setShowAddAppModal(false)}
+              >
+                <motion.div
+                  initial={{ scale: 0.95, y: 20 }}
+                  animate={{ scale: 1, y: 0 }}
+                  exit={{ scale: 0.95, y: 20 }}
+                  className={`${bgCard} w-full max-w-md border ${borderLine} rounded-2xl p-6 space-y-4 shadow-2xl relative`}
+                  onClick={e => e.stopPropagation()}
+                >
+                  {/* Header */}
+                  <div className="flex items-center justify-between border-b border-slate-700/20 pb-3">
+                    <h3 className={`text-sm font-black tracking-widest uppercase flex items-center gap-2 ${textTitle}`}>
+                      <Calendar className="h-4 w-4 text-indigo-500" />
+                      YENİ RANDEVU PROGRAMLA
+                    </h3>
+                    <button
+                      onClick={() => setShowAddAppModal(false)}
+                      className="text-slate-500 hover:text-rose-500 transition-colors bg-slate-800/20 p-2 rounded-full cursor-pointer"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
 
+                  {/* Form */}
+                  <form onSubmit={handleScheduleSubmit} className="space-y-4 leading-relaxed font-semibold">
+                    {/* Hasta Seç dropdown */}
+                    <div>
+                      <label className={`text-[10px] font-black uppercase ${textTitle} block mb-1`}>Hasta Seç</label>
+                      <select
+                        required
+                        value={newAppPatientId}
+                        onChange={e => setNewAppPatientId(e.target.value)}
+                        className={`w-full text-xs font-semibold p-3 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500/20 ${bgInput} border border-slate-700/30`}
+                      >
+                        <option value="">-- Hasta Seçin --</option>
+                        {patientsList.map(pat => (
+                          <option key={pat.id} value={pat.id}>{pat.name} (T.C: {pat.tcNo})</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Hekim Seç dropdown */}
+                    <div>
+                      <label className={`text-[10px] font-black uppercase ${textTitle} block mb-1`}>Hekim Seç</label>
+                      <select
+                        required
+                        value={newAppDoctorId}
+                        onChange={e => setNewAppDoctorId(e.target.value)}
+                        className={`w-full text-xs font-semibold p-3 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500/20 ${bgInput} border border-slate-700/30`}
+                      >
+                        <option value="">-- Hekim Seçin --</option>
+                        {doctorsList.map(doc => (
+                          <option key={doc.user_id} value={doc.user_id}>{doc.name} {doc.specialty ? `(${doc.specialty})` : ''}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Tarih ve Saat */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className={`text-[10px] font-black uppercase ${textTitle} block mb-1`}>Randevu Tarihi</label>
+                        <input
+                          type="date"
+                          required
+                          value={newAppDate}
+                          onChange={e => setNewAppDate(e.target.value)}
+                          className={`w-full text-xs font-bold p-3 rounded-xl focus:outline-none ${bgInput} border border-slate-700/30`}
+                        />
+                      </div>
+                      <div>
+                        <label className={`text-[10px] font-black uppercase ${textTitle} block mb-1`}>Randevu Saati</label>
+                        <input
+                          type="time"
+                          required
+                          value={newAppTime}
+                          onChange={e => setNewAppTime(e.target.value)}
+                          className={`w-full text-xs font-bold p-3 rounded-xl focus:outline-none ${bgInput} border border-slate-700/30`}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Açıklama / Tür */}
+                    <div>
+                      <label className={`text-[10px] font-black uppercase ${textTitle} block mb-1`}>Randevu Açıklaması / İşlem Türü</label>
+                      <input
+                        type="text"
+                        required
+                        value={newAppType}
+                        onChange={e => setNewAppType(e.target.value)}
+                        className={`w-full text-xs font-semibold p-3 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500/20 ${bgInput} border border-slate-700/30`}
+                        placeholder="Örn: Diş Temizliği, İmplant Muayenesi"
+                      />
+                    </div>
+
+                    {/* Submit */}
+                    <button
+                      type="submit"
+                      className="w-full bg-indigo-500 hover:bg-indigo-600 text-slate-950 font-black text-xs py-3 rounded-xl cursor-pointer shadow transition-all"
+                    >
+                      Klinik Randevusunu Programla
+                    </button>
+                  </form>
+                </motion.div>
+              </motion.div>
+            )}
+
+            {showActionModal && selectedAppForAction && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50 overflow-y-auto"
+                onClick={() => setShowActionModal(false)}
+              >
+                <motion.div
+                  initial={{ scale: 0.95, y: 20 }}
+                  animate={{ scale: 1, y: 0 }}
+                  exit={{ scale: 0.95, y: 20 }}
+                  className={`${bgCard} w-full max-w-md border ${borderLine} rounded-2xl p-6 space-y-5 shadow-2xl relative`}
+                  onClick={e => e.stopPropagation()}
+                >
+                  {/* Header */}
+                  <div className="flex items-center justify-between border-b border-slate-700/20 pb-3">
+                    <h3 className={`text-sm font-black tracking-widest uppercase flex items-center gap-2 ${textTitle}`}>
+                      <Calendar className="h-4 w-4 text-indigo-500" />
+                      RANDEVU AKSİYON MENÜSÜ
+                    </h3>
+                    <button
+                      onClick={() => setShowActionModal(false)}
+                      className="text-slate-500 hover:text-rose-500 transition-colors bg-slate-800/20 p-2 rounded-full cursor-pointer"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  {/* Appointment Info */}
+                  <div className={`p-4 rounded-xl border space-y-2.5 ${isDark ? 'bg-[#0b121f] border-slate-850' : 'bg-slate-50 border-slate-200'}`}>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <span className="text-[10px] text-slate-550 font-bold uppercase block">Hasta</span>
+                        <span className={`text-xs font-black ${textTitle}`}>{selectedAppForAction.patientName}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-500 font-bold uppercase block text-right">Durum</span>
+                        <span
+                          className="text-[9.5px] px-2 py-0.5 rounded font-black border"
+                          style={
+                            selectedAppForAction.status === 'Bekliyor'
+                              ? {
+                                  color: 'var(--color-clinic-accent, #6366f1)',
+                                  borderColor: 'color-mix(in srgb, var(--color-clinic-accent, #6366f1) 20%, transparent)',
+                                  backgroundColor: 'color-mix(in srgb, var(--color-clinic-accent, #6366f1) 12%, transparent)'
+                                }
+                              : selectedAppForAction.status === 'Tamamlandı'
+                              ? {
+                                  color: '#10b981',
+                                  borderColor: 'rgba(16, 185, 129, 0.2)',
+                                  backgroundColor: 'rgba(16, 185, 129, 0.12)'
+                                }
+                              : {
+                                  color: '#f43f5e',
+                                  borderColor: 'rgba(244, 63, 94, 0.2)',
+                                  backgroundColor: 'rgba(244, 63, 94, 0.12)'
+                                }
+                          }
+                        >
+                          {selectedAppForAction.status}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <span className="text-[10px] text-slate-500 font-bold uppercase block">Hekim</span>
+                        <span className={`text-xs font-black ${textTitle}`}>{selectedAppForAction.doctorName}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-500 font-bold uppercase block">İşlem Türü</span>
+                        <span className={`text-xs font-semibold ${textTitle}`}>{selectedAppForAction.type}</span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <span className="text-[10px] text-slate-500 font-bold uppercase block">Tarih</span>
+                        <span className={`text-xs font-mono font-bold ${textTitle}`}>{selectedAppForAction.date}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-550 font-bold uppercase block">Saat</span>
+                        <span className={`text-xs font-mono font-bold ${textTitle}`}>{selectedAppForAction.time}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="space-y-2">
+                    <span className="text-[10px] text-slate-550 font-bold uppercase block">HIZLI AKSİYONLAR</span>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        onClick={() => handleUpdateAppStatus(selectedAppForAction.id, 'Tamamlandı')}
+                        className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs transition-all shadow cursor-pointer"
+                      >
+                        <Check className="h-4 w-4" />
+                        Tamamlandı Yap
+                      </button>
+                      <button
+                        onClick={() => handleUpdateAppStatus(selectedAppForAction.id, 'İptal Edildi')}
+                        className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-rose-500 hover:bg-rose-600 text-slate-950 font-black text-xs transition-all shadow cursor-pointer"
+                      >
+                        <X className="h-4 w-4" />
+                        İptal Et
+                      </button>
+                    </div>
+
+                    <button
+                      onClick={() => handleUpdateAppStatus(selectedAppForAction.id, 'Bekliyor')}
+                      className={`w-full py-2.5 px-4 rounded-xl border text-xs font-extrabold transition-all cursor-pointer ${
+                        isDark ? 'bg-slate-850 hover:bg-slate-800 text-slate-200 border-slate-700' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300'
+                      }`}
+                    >
+                      Bekliyor Konumuna Al
+                    </button>
+
+                    <div className="border-t border-slate-700/20 pt-4 mt-2">
+                      <button
+                        onClick={() => handleDeleteApp(selectedAppForAction.id)}
+                        className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-rose-600/10 hover:bg-rose-600/20 text-rose-500 hover:text-rose-450 border border-rose-500/20 font-black text-xs transition-all cursor-pointer"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Randevuyu Tamamen Sil
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </main>
 
       </div>

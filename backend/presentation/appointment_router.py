@@ -15,13 +15,21 @@ class AppointmentCreateSchema(BaseModel):
     appointment_type: str = Field(..., min_length=2)
     status: Optional[str] = "Bekliyor"
 
+class AppointmentUpdateSchema(BaseModel):
+    patient_id: Optional[str] = None
+    doctor_id: Optional[str] = None
+    appointment_date: Optional[str] = None
+    appointment_time: Optional[str] = None
+    appointment_type: Optional[str] = None
+    status: Optional[str] = None
+
 @router.get("/")
-def get_appointments():
+def get_appointments(clinic_id: Optional[str] = None):
     """
-    HTTP GET: Fetch all appointments list.
+    HTTP GET: Fetch all appointments list, optionally filtered by clinic_id.
     """
     try:
-        return AppointmentBLL.get_all_appointments()
+        return AppointmentBLL.get_all_appointments(clinic_id or "")
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
@@ -52,3 +60,35 @@ def schedule_appointment(app_req: AppointmentCreateSchema):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(ve))
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+@router.put("/{app_id}")
+def update_appointment(app_id: str, app_req: AppointmentUpdateSchema):
+    """
+    HTTP PUT: Update appointment details.
+    """
+    try:
+        app_data = app_req.model_dump(exclude_unset=True)
+        AppointmentBLL.update_appointment(app_id, app_data)
+        return {"success": True, "message": "Randevu başarıyla güncellendi."}
+    except KeyError as ke:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(ke))
+    except ValueError as ve:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+@router.delete("/{app_id}")
+def delete_appointment(app_id: str):
+    """
+    HTTP DELETE: Remove appointment by ID.
+    """
+    try:
+        AppointmentBLL.delete_appointment(app_id)
+        return {"success": True, "message": "Randevu başarıyla silindi."}
+    except KeyError as ke:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(ke))
+    except ValueError as ve:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+

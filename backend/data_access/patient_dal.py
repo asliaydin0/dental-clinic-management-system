@@ -179,7 +179,7 @@ class PatientDAL:
         Queries all appointments and returns the closest pending one.
         """
         with DBConnectionContext() as (conn, cursor):
-            cursor.callproc("sp_GetAppointment", [""])
+            cursor.callproc("sp_GetAppointment", ["", ""])
             results = []
             for result in cursor.stored_results():
                 results.extend(result.fetchall())
