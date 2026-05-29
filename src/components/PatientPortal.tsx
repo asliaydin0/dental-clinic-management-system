@@ -39,6 +39,7 @@ import {
 } from 'lucide-react';
 import { ToothDetails, BrushingLog, AnalysisFile, ToothStatus, TreatmentType } from '../types';
 import { BRUSHING_STEPS } from '../data';
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
 interface PatientPortalProps {
   onExit: () => void;
@@ -430,7 +431,9 @@ export default function PatientPortal({
         primaryDentist: doctorName,
         primaryDentistId: patientData.primary_dentist_id,
         clinicName: clinicName,
-        treatmentTimeline: mergedTimeline
+        treatmentTimeline: mergedTimeline,
+        unhealthyToothCount: patientData.unhealthy_tooth_count || 0,
+        averageBrushingScore: patientData.average_brushing_score || 0
       });
     } catch (err) {
       console.error("Hasta detayları çekilemedi:", err);
@@ -475,6 +478,7 @@ export default function PatientPortal({
       if (response.ok) {
         triggerToast("Diş fırçalama seansınız günlüğünüze eklendi!", "success");
         fetchBrushingLogs();
+        fetchPatientData();
       } else {
         triggerToast("Seans kaydedilemedi. Sunucu hatası.", "warning");
       }
@@ -798,8 +802,8 @@ export default function PatientPortal({
     .sort((a, b) => b.date.localeCompare(a.date));
 
   // Dynamic stats & selections
-  const latestAnalysisScore = analyses.length > 0 ? analyses[0].score : null;
-  const dentalHealthScore = latestAnalysisScore || Math.min(100, Math.max(50, 100 - (teeth.filter(t => t.status === 'treatment').length * 10) - (teeth.filter(t => t.status === 'risk').length * 5)));
+  const unhealthyCount = patientRecord?.unhealthyToothCount ?? 0;
+  const dentalHealthScore = Math.round(((32 - unhealthyCount) / 32) * 100);
 
   let healthScoreLabel = 'Mükemmel';
   if (dentalHealthScore < 60) healthScoreLabel = 'Takip Gerekli';
@@ -1091,7 +1095,11 @@ export default function PatientPortal({
                       <span className="text-[9px] text-slate-400 block font-bold leading-none">Sağlam</span>
                     </div>
                     <div className="p-1 px-2 bg-rose-500/10 rounded-lg border border-rose-500/20 animate-pulse">
-                      <span className="text-base font-extrabold text-rose-500 block">{teeth.filter(t => t.status === 'risk').length}</span>
+                      <span className="text-base font-extrabold text-rose-500 block">
+                        {patientRecord?.unhealthyToothCount !== undefined && patientRecord?.unhealthyToothCount !== null
+                          ? patientRecord.unhealthyToothCount
+                          : teeth.filter(t => t.status === 'risk' || t.status === 'treatment').length}
+                      </span>
                       <span className="text-[9px] text-slate-400 block font-bold leading-none">Riskli</span>
                     </div>
                     <div className="p-1 px-2 bg-amber-500/10 rounded-lg border border-amber-500/20">
@@ -1119,9 +1127,11 @@ export default function PatientPortal({
                   <div>
                     <div className="flex items-baseline gap-1.5">
                       <span className={`text-2xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                        {brushingLogs.length > 0
-                          ? Math.round(brushingLogs.reduce((acc, curr) => acc + curr.score, 0) / brushingLogs.length)
-                          : 85}
+                        {patientRecord?.averageBrushingScore !== undefined && patientRecord?.averageBrushingScore !== null && patientRecord?.averageBrushingScore > 0
+                          ? Math.round(patientRecord.averageBrushingScore)
+                          : (brushingLogs.length > 0
+                            ? Math.round(brushingLogs.reduce((acc, curr) => acc + curr.score, 0) / brushingLogs.length)
+                            : 85)}
                         /100
                       </span>
                       <span className="text-[10px] text-slate-400 block font-semibold">Ortalama</span>
@@ -1499,6 +1509,20 @@ export default function PatientPortal({
                       </div>
                       <span className="text-[10px] text-slate-400 font-mono font-bold">Son Seanslar</span>
                     </div>
+
+                    {brushingLogs.length > 0 && (
+                      <div className="h-32 w-full pt-1.5 pb-2">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={[...brushingLogs].reverse()} margin={{ top: 5, right: 10, left: -25, bottom: 0 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#1e293b" : "#e2e8f0"} />
+                            <XAxis dataKey="date" stroke="#64748b" fontSize={9} />
+                            <YAxis domain={[0, 100]} stroke="#64748b" fontSize={9} />
+                            <Tooltip contentStyle={isDark ? { backgroundColor: '#0f172a', borderColor: '#1e293b', color: '#fff', fontSize: '10px' } : { fontSize: '10px' }} />
+                            <Line type="monotone" dataKey="score" name="Skor" stroke="var(--color-clinic-accent, #6366f1)" strokeWidth={2.5} activeDot={{ r: 4 }} />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+                    )}
 
                     <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-1">
                       {brushingLogs.length > 0 ? (

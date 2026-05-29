@@ -10,7 +10,7 @@ class PatientDAL:
     @staticmethod
     def get_patient(patient_id: str, clinic_id: str = "", doctor_id: str = "") -> dict:
         """
-        Retrieves patient information by calling Stored Procedure 'sp_GetPatient'.
+        Retrieves patient information by calling Stored Procedure 'sp_GetPatient' and UDFs.
         """
         with DBConnectionContext() as (conn, cursor):
             # Safe call to Stored Procedure
@@ -21,7 +21,19 @@ class PatientDAL:
             for result in cursor.stored_results():
                 results.extend(result.fetchall())
                 
-            return results[0] if results else None
+            patient = results[0] if results else None
+            if patient:
+                # Query fn_GetUnhealthyToothCount UDF
+                cursor.execute("SELECT fn_GetUnhealthyToothCount(%s) AS unhealthy_count", [patient_id])
+                unhealthy_res = cursor.fetchone()
+                patient["unhealthy_tooth_count"] = unhealthy_res["unhealthy_count"] if unhealthy_res else 0
+                
+                # Query fn_GetAverageBrushingScore UDF
+                cursor.execute("SELECT fn_GetAverageBrushingScore(%s) AS avg_score", [patient_id])
+                avg_res = cursor.fetchone()
+                patient["average_brushing_score"] = float(avg_res["avg_score"]) if avg_res and avg_res["avg_score"] is not None else 0.0
+                
+            return patient
 
     @staticmethod
     def get_all_patients(clinic_id: str = "", doctor_id: str = "") -> list:
