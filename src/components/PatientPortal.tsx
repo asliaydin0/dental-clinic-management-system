@@ -342,7 +342,7 @@ export default function PatientPortal({
       // 3. Fetch treatments and teeth status from DB
       let teethData: ToothDetails[] = [];
       try {
-        const treatmentsRes = await fetch(`http://localhost:8000/treatments/?patient_id=${currentUser.id}`);
+        const treatmentsRes = await fetch(`http://localhost:8000/tooth_treatments/${currentUser.id}`);
         const teethRes = await fetch(`http://localhost:8000/patients/${currentUser.id}/teeth`);
         
         if (treatmentsRes.ok && teethRes.ok) {
@@ -577,6 +577,100 @@ export default function PatientPortal({
   // Selected tooth on Interactive Map (FDI 32 Teeth System)
   const [selectedToothId, setSelectedToothId] = useState<number | null>(26); // default to 26 which is under active treatment
   const selectedToothInfo = teeth.find(t => t.id === selectedToothId) || null;
+
+  const getToothSVGPath = (id: number, isUpper: boolean) => {
+    const digit = id % 10;
+    if (digit >= 6) {
+      return isUpper
+        ? "M 6,5 C 6,2 10,2 17,2 C 24,2 28,2 28,5 C 31,10 32,20 30,36 C 28,42 22,44 17,44 C 12,44 6,42 4,36 C 2,20 3,10 6,5 Z"
+        : "M 6,43 C 6,46 10,46 17,46 C 24,46 28,46 28,43 C 31,38 32,28 30,12 C 28,6 22,4 17,4 C 12,4 6,6 4,12 C 2,28 3,38 6,43 Z";
+    }
+    if (digit === 4 || digit === 5) {
+      return isUpper
+        ? "M 7,6 C 9,3 15,3 15,3 C 15,3 21,3 23,6 C 25,12 26,22 24,36 C 22,41 18,43 15,43 C 12,43 8,41 6,36 C 4,22 5,12 7,6 Z"
+        : "M 7,42 C 9,45 15,45 15,45 C 15,45 21,45 23,42 C 25,36 26,26 24,12 C 22,7 18,5 15,5 C 12,5 8,7 6,12 C 4,26 5,36 7,42 Z";
+    }
+    if (digit === 3) {
+      return isUpper
+        ? "M 13,2 C 18,2 23,10 23,18 C 23,28 21,36 19,42 C 18,44 13,45 13,45 C 13,45 8,44 7,42 C 5,36 3,28 3,18 C 3,10 8,2 13,2 Z"
+        : "M 13,46 C 18,46 23,38 23,30 C 23,20 21,12 19,6 C 18,4 13,3 13,3 C 13,3 8,4 7,6 C 5,12 3,20 3,30 C 3,38 8,46 13,46 Z";
+    }
+    return isUpper
+      ? "M 6,5 L 20,5 C 22,8 21,24 19,38 C 19,40 16,41 13,41 C 10,41 7,40 7,38 C 5,24 4,8 6,5 Z"
+      : "M 6,43 L 20,43 C 22,40 21,24 19,10 C 19,8 16,7 13,7 C 10,7 7,8 7,10 C 5,24 4,40 6,43 Z";
+  };
+
+  const renderPatientTooth = (id: number, isUpper: boolean) => {
+    const toothInfo = teeth.find(t => t.id === id) || { status: 'healthy' as ToothStatus, name: 'Tanımsız', notes: '' };
+    const isSelected = selectedToothId === id;
+    const digit = id % 10;
+    
+    let w = 20;
+    let h = 44;
+    if (digit >= 6) { w = 32; h = 48; }
+    else if (digit === 4 || digit === 5) { w = 26; h = 46; }
+    else if (digit === 3) { w = 22; h = 46; }
+
+    let fillClass = 'fill-emerald-500';
+    let animateClass = '';
+    if (toothInfo.status === 'risk') {
+      fillClass = 'fill-rose-500';
+      animateClass = 'animate-pulse';
+    } else if (toothInfo.status === 'treatment') {
+      fillClass = 'fill-amber-500';
+    } else if (toothInfo.status === 'completed') {
+      fillClass = 'fill-indigo-500';
+    }
+
+    const path = getToothSVGPath(id, isUpper);
+
+    return (
+      <div key={id} className="flex flex-col items-center space-y-1">
+        {isUpper && (
+          <span className={`text-[9px] font-mono font-black ${isSelected ? 'text-indigo-500 font-extrabold dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'}`}>
+            {id}
+          </span>
+        )}
+        <button
+          onClick={() => {
+            setSelectedToothId(id);
+            triggerToast(`Diş #${id} seçildi, işlem geçmişi yükleniyor...`, "success");
+          }}
+          className={`relative focus:outline-none transition-all duration-200 cursor-pointer ${isSelected ? 'scale-115 z-10' : 'hover:scale-108 hover:z-10'}`}
+          title={`Diş #${id} - ${toothInfo.name || 'Tanımsız'}`}
+          style={{ width: `${w}px`, height: `${h}px` }}
+        >
+          <svg
+            viewBox={`0 0 ${w + 8} ${h + 8}`}
+            className="w-full h-full animate-fadeIn"
+            style={{ overflow: 'visible' }}
+          >
+            <path
+              d={path}
+              className={`${fillClass} ${animateClass} transition-all duration-300`}
+              stroke={isSelected ? 'var(--color-clinic-accent, #6366f1)' : (isDark ? '#334155' : '#cbd5e1')}
+              strokeWidth={isSelected ? 3 : 1.5}
+              style={isSelected ? { filter: 'drop-shadow(0 0 6px var(--color-clinic-accent, #6366f1))' } : undefined}
+            />
+            {digit >= 4 && (
+              <path
+                d={`M ${w/2},${h/3} L ${w/2},${2*h/3}`}
+                stroke={isDark ? '#1e293b' : '#94a3b8'}
+                strokeWidth={1}
+                strokeDasharray="2,2"
+                opacity={0.6}
+              />
+            )}
+          </svg>
+        </button>
+        {!isUpper && (
+          <span className={`text-[9px] font-mono font-black ${isSelected ? 'text-indigo-500 font-extrabold dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'}`}>
+            {id}
+          </span>
+        )}
+      </div>
+    );
+  };
 
   // FDI Coordinates for anatomical teeth matrix rendering
   const DentalTeethCoords = [
@@ -1628,52 +1722,55 @@ export default function PatientPortal({
                   </div>
 
                   {/* Teeth Coordinate Matrix System wrapper */}
-                  <div className="flex justify-center items-center py-4 overflow-x-auto select-none">
-                    <div className="relative w-[520px] h-[230px] shrink-0 bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-slate-200/80 dark:border-slate-800/40">
+                  <div className="w-full flex flex-col items-center py-4 select-none">
+                    <div className="w-full overflow-x-auto pb-4 pt-2">
+                      <div className="min-w-[620px] flex flex-col items-center space-y-6">
+                        
+                        {/* Upper Row (Maxilla) */}
+                        <div className="flex flex-col items-center space-y-2">
+                          <div className="flex justify-between w-full px-6 text-[10px] font-extrabold text-slate-400 tracking-wider">
+                            <span>ÜST ÇENE (MAXILLA) — SAĞ</span>
+                            <span>ÜST ÇENE (MAXILLA) — SOL</span>
+                          </div>
+                          <div className="flex items-center space-x-1 relative border border-slate-200/40 dark:border-slate-800/40 p-4 rounded-2xl bg-slate-50/50 dark:bg-slate-950/20">
+                            {/* Left side (18 - 11) */}
+                            <div className="flex items-end space-x-1.5">
+                              {[18, 17, 16, 15, 14, 13, 12, 11].map(id => renderPatientTooth(id, true))}
+                            </div>
+                            
+                            {/* Midline divider */}
+                            <div className="w-[2px] h-20 border-l-2 border-dashed border-indigo-500/30 mx-3 self-center"></div>
+                            
+                            {/* Right side (21 - 28) */}
+                            <div className="flex items-end space-x-1.5">
+                              {[21, 22, 23, 24, 25, 26, 27, 28].map(id => renderPatientTooth(id, true))}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Lower Row (Mandibula) */}
+                        <div className="flex flex-col items-center space-y-2">
+                          <div className="flex items-center space-x-1 relative border border-slate-200/40 dark:border-slate-800/40 p-4 rounded-2xl bg-slate-50/50 dark:bg-slate-950/20">
+                            {/* Left side (48 - 41) */}
+                            <div className="flex items-start space-x-1.5">
+                              {[48, 47, 46, 45, 44, 43, 42, 41].map(id => renderPatientTooth(id, false))}
+                            </div>
+                            
+                            {/* Midline divider */}
+                            <div className="w-[2px] h-20 border-l-2 border-dashed border-indigo-500/30 mx-3 self-center"></div>
+                            
+                            {/* Right side (31 - 38) */}
+                            <div className="flex items-start space-x-1.5">
+                              {[31, 32, 33, 34, 35, 36, 37, 38].map(id => renderPatientTooth(id, false))}
+                            </div>
+                          </div>
+                          <div className="flex justify-between w-full px-6 text-[10px] font-extrabold text-slate-400 tracking-wider">
+                            <span>ALT ÇENE (MANDIBULA) — SAĞ</span>
+                            <span>ALT ÇENE (MANDIBULA) — SOL</span>
+                          </div>
+                        </div>
 
-                      {/* Grid dividers */}
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
-                        <div className="w-full h-[1px] border-t border-dashed border-indigo-400" />
-                        <div className="h-full w-[1px] border-l border-dashed border-indigo-400 absolute" />
                       </div>
-
-                      {/* Map Coordinates of active FDI system */}
-                      {DentalTeethCoords.map((tc) => {
-                        const toothData = teeth.find(t => t.id === tc.id) || { status: 'healthy', notes: '' };
-                        const isSelected = selectedToothId === tc.id;
-
-                        let toothColorState = 'bg-emerald-500 text-slate-100 border-emerald-400';
-                        if (toothData.status === 'risk') {
-                          toothColorState = 'bg-rose-500 text-white border-rose-300 animate-pulse';
-                        } else if (toothData.status === 'treatment') {
-                          toothColorState = 'bg-amber-500 text-[#090d16] border-amber-300';
-                        } else if (toothData.status === 'completed') {
-                          toothColorState = 'bg-indigo-500 text-white border-indigo-300';
-                        }
-
-                        return (
-                          <button
-                            key={tc.id}
-                            onClick={() => {
-                              setSelectedToothId(tc.id);
-                              triggerToast(`Diş #${tc.id} seçildi, işlem geçmişi yükleniyor...`, "success");
-                            }}
-                            style={{
-                              position: 'absolute',
-                              left: `${tc.x}px`,
-                              top: `${tc.y}px`,
-                              transform: 'translate(-50%, -50%)'
-                            }}
-                            className={`h-7.5 w-7.5 rounded-lg border flex items-center justify-center text-[10.5px] font-bold font-mono transition-all cursor-pointer ${toothColorState} ${isSelected ? 'ring-4 ring-indigo-500 scale-120 z-10 shadow-lg' : 'hover:scale-110'
-                              }`}
-                            title={`FDI Diş No: ${tc.id} — ${tc.name}`}
-                            id={`fdi-tooth-btn-${tc.id}`}
-                          >
-                            {tc.id}
-                          </button>
-                        );
-                      })}
-
                     </div>
                   </div>
 
@@ -1704,7 +1801,7 @@ export default function PatientPortal({
                   <div className={`${bgCard} border p-6 space-y-4 min-h-[400px] flex flex-col justify-between`}>
 
                     {selectedToothInfo ? (
-                      <div className="space-y-3.5">
+                      <div className="space-y-4">
                         <div className="border-b pb-2.5 border-slate-500/10">
                           <span className="text-[9px] font-bold text-indigo-400 block uppercase tracking-wider">DİŞ MUAYENE BİLGİ KARTIM</span>
                           <h3 className={`text-base font-bold ${textTitle} mt-0.5`}>Diş No: #{selectedToothId} — {selectedToothInfo.name}</h3>
@@ -1721,38 +1818,50 @@ export default function PatientPortal({
                           </span>
                         </div>
 
-                        {/* Individual tooth treatment histories */}
-                        <div className="space-y-2">
-                          <h4 className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">DİŞ ÖZELİNDEKİ İŞLEMLER</h4>
-                          {selectedToothInfo.treatments.length > 0 ? (
-                            selectedToothInfo.treatments.map((tr, idx) => (
-                              <div key={idx} className="p-3 bg-slate-50 dark:bg-slate-950/50 rounded-xl border border-slate-100 dark:border-slate-800/80 text-xs">
-                                <div className="flex justify-between font-bold text-slate-650 dark:text-slate-300">
-                                  <span className="text-indigo-400">{tr.type.toUpperCase()}</span>
-                                  <span className="font-mono text-[10px] text-slate-400">{tr.date}</span>
-                                </div>
-                                <p className="text-slate-500 dark:text-slate-400 mt-1 leading-relaxed text-[10.5px]">{tr.description}</p>
-                              </div>
-                            ))
-                          ) : (
-                            <p className="text-[11px] text-slate-500 leading-normal italic py-4">
-                              Bu diş üzerinde henüz bir operasyon veya kayıtlı tedavi bulunmamaktadır.
-                            </p>
-                          )}
-                        </div>
-
                         {selectedToothInfo.notes && (
-                          <div className="p-3 bg-amber-500/5 dark:bg-amber-500/10 rounded-xl border border-amber-500/20 text-xs leading-relaxed text-slate-500 dark:text-slate-350 font-medium">
-                            <span className="font-bold text-amber-500 block text-[9px] uppercase tracking-wider">Hekim İzlem Notu:</span>
+                          <div className="p-3 bg-amber-500/5 dark:bg-amber-500/10 rounded-xl border border-amber-500/20 text-xs leading-relaxed text-slate-700 dark:text-slate-300 font-medium">
+                            <span className="font-bold text-amber-500 block text-[9px] uppercase tracking-wider mb-1">Hekim Teşhis ve İzlem Notu:</span>
                             {selectedToothInfo.notes}
                           </div>
                         )}
+
+                        {/* Individual tooth treatment histories - Timeline style */}
+                        <div className="space-y-3">
+                          <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">DİŞ İŞLEM ZAMAN TÜNELİ</h4>
+                          {selectedToothInfo.treatments.length > 0 ? (
+                            <div className="relative pl-4 border-l border-slate-200 dark:border-slate-800 ml-2 py-1 space-y-4">
+                              {selectedToothInfo.treatments.map((tr, idx) => (
+                                <div key={idx} className="relative">
+                                  {/* Timeline bullet */}
+                                  <div className="absolute -left-[21px] top-1.5 h-2 w-2 rounded-full bg-indigo-500 ring-4 ring-white dark:ring-[#0e1626]" />
+                                  
+                                  <div className="text-xs">
+                                    <div className="flex flex-wrap items-center justify-between gap-1 font-bold">
+                                      <span className="text-indigo-400 uppercase tracking-wider text-[10.5px]">{tr.type}</span>
+                                      <span className="font-mono text-[9px] text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-900/60 px-2 py-0.5 rounded-full">{tr.date}</span>
+                                    </div>
+                                    {tr.description && (
+                                      <p className="text-slate-500 dark:text-slate-400 mt-1 leading-relaxed text-[10.5px] font-semibold">{tr.description}</p>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="p-4 bg-slate-50 dark:bg-slate-950/20 rounded-xl border border-dashed border-slate-200 dark:border-slate-800/60 text-center">
+                              <p className="text-[11px] text-slate-550 dark:text-slate-500 italic">
+                                Bu diş üzerinde henüz kayıtlı bir operasyon veya tedavi bulunmamaktadır.
+                              </p>
+                            </div>
+                          )}
+                        </div>
+
                       </div>
                     ) : (
                       <p className="text-center py-12 text-xs text-slate-500 font-medium">Hepsini görmek için soldaki çene şemasından bir diş numarası seçin.</p>
                     )}
 
-                    <div className="p-3.5 bg-indigo-500/5 rounded-xl border border-indigo-500/15 text-[10.5px] leading-relaxed text-indigo-401 text-indigo-400 font-medium">
+                    <div className="p-3 bg-indigo-500/5 rounded-xl border border-indigo-550/15 border-indigo-500/15 text-[10px] leading-relaxed text-indigo-400 font-semibold mt-4">
                       <span>Anatomik diş yapısı FDI numaralandırma kurallarına uygun olarak simüle edilmektedir.</span>
                     </div>
                   </div>
@@ -1779,19 +1888,27 @@ export default function PatientPortal({
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-500/5">
-                      {allTeethTreatments.map((tr, index) => (
-                        <tr key={index} className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
-                          <td className="py-3 font-mono text-[10.5px] text-slate-400 font-bold">{tr.date}</td>
-                          <td className="py-3">
-                            <span className="bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded font-bold font-mono text-[11px]">
-                              #{tr.toothId} — {tr.toothName}
-                            </span>
+                      {allTeethTreatments.length > 0 ? (
+                        allTeethTreatments.map((tr, index) => (
+                          <tr key={index} className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
+                            <td className="py-3 font-mono text-[10.5px] text-slate-400 font-bold">{tr.date}</td>
+                            <td className="py-3">
+                              <span className="bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded font-bold font-mono text-[11px]">
+                                #{tr.toothId} — {tr.toothName}
+                              </span>
+                            </td>
+                            <td className="py-3 font-extrabold text-indigo-400 uppercase tracking-wide">{tr.type}</td>
+                            <td className="py-3 font-medium text-slate-600 dark:text-slate-350 leading-relaxed text-[11px]">{tr.description}</td>
+                            <td className="py-3 font-bold text-teal-400">{patientRecord?.primaryDentist || 'Uygulayan Hekim'}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={5} className="py-8 text-center text-slate-500 italic text-xs">
+                            Kayıtlı herhangi bir klinik işlem veya tedavi geçmişi bulunmamaktadır.
                           </td>
-                          <td className="py-3 font-extrabold text-indigo-450 text-indigo-400 uppercase tracking-wide">{tr.type}</td>
-                          <td className="py-3 font-medium text-slate-650 dark:text-slate-300 leading-relaxed text-[11px]">{tr.description}</td>
-                          <td className="py-3 font-bold text-teal-400">Dr. Samantha Lee</td>
                         </tr>
-                      ))}
+                      )}
                     </tbody>
                   </table>
                 </div>
