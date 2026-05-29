@@ -1,0 +1,6 @@
+{
+  "name": "DişAsistanım",
+  "description": "Yapay zeka fırçalama analizi, interaktif diş haritası ve günlük fırçalama takibi ile dijital diş sağlığı asistanınız.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
