@@ -2,11 +2,11 @@ import React from 'react';
 import { 
   User, 
   Calendar, 
-  AlertTriangle, 
   Clock, 
   Activity, 
   Play, 
-  X 
+  X,
+  Stethoscope
 } from 'lucide-react';
 import Avatar from './Avatar';
 
@@ -87,6 +87,9 @@ export default function SharedDashboard({
   appendLog,
   activePatient
 }: SharedDashboardProps) {
+  const activeTreatmentsCount = (patientsList || []).filter(p => p.treatmentStatus === 'Tedavide').length;
+  const pendingDiagnosisCount = (patientsList || []).filter(p => p.treatmentStatus === 'Teşhis Aşamasında').length;
+
   return (
     <div className="space-y-6 animate-fadeIn">
 
@@ -114,12 +117,13 @@ export default function SharedDashboard({
         </div>
 
         <div className={`${bgCard} border p-4.5 rounded-2xl flex items-center space-x-4`}>
-          <div className="bg-rose-500/10 p-3 rounded-xl text-rose-500">
-            <AlertTriangle className="h-6 w-6" />
+          <div className="bg-teal-50 dark:bg-teal-900/30 p-3 rounded-xl text-teal-600 dark:text-teal-400">
+            <Stethoscope className="h-6 w-6 animate-pulse" />
           </div>
           <div>
-            <span className={`text-[10px] uppercase font-mono block ${textMuted}`}>YAPAY ZEKA ALARM SKORU</span>
-            <p className={`text-xl font-black ${textTitle}`}>%91 (Ciddi Vaka)</p>
+            <span className={`text-[10px] uppercase font-mono block ${textMuted}`}>AKTİF TEDAVİ SÜREÇLERİ</span>
+            <p className={`text-xl font-black ${textTitle}`}>{activeTreatmentsCount} Hasta Tedavide</p>
+            <p className="text-[10px] text-slate-500 mt-0.5 leading-tight font-medium">Teşhis aşamasında bekleyen {pendingDiagnosisCount} hastanız var.</p>
           </div>
         </div>
 
