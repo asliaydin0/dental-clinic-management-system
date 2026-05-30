@@ -38,9 +38,16 @@ class BrushingBLL:
             raise ValueError("Tarih boş bırakılamaz.")
         if not log_data.get("log_time"):
             raise ValueError("Saat boş bırakılamaz.")
-        if log_data.get("duration_seconds", 0) <= 0:
+        
+        duration = log_data.get("duration_seconds", 0)
+        if duration <= 0:
             raise ValueError("Fırçalama süresi 0'dan büyük olmalıdır.")
-        if not (0 <= log_data.get("score", 0) <= 100):
-            raise ValueError("Fırçalama skoru 0 ile 100 arasında olmalıdır.")
             
+        # Calculate score: optimal duration is 120 seconds (up to 70 pts), floss (15 pts), tongue (15 pts)
+        duration_score = min(70, int((duration / 120.0) * 70))
+        floss_score = 15 if log_data.get("floss_used", 0) == 1 else 0
+        tongue_score = 15 if log_data.get("tongue_brushed", 0) == 1 else 0
+        calculated_score = max(1, min(100, duration_score + floss_score + tongue_score))
+        
+        log_data["score"] = calculated_score
         return BrushingDAL.insert_brushing_log(log_data)

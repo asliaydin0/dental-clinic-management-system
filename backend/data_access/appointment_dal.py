@@ -77,3 +77,15 @@ class AppointmentDAL:
             cursor.callproc("sp_DeleteAppointment", [app_id])
             conn.commit()
             return True
+
+    @staticmethod
+    def get_upcoming_appointment(patient_id: str) -> dict:
+        """
+        Retrieves upcoming appointment for patient using 'sp_GetPatientUpcomingAppointment'.
+        """
+        with DBConnectionContext() as (conn, cursor):
+            cursor.callproc("sp_GetPatientUpcomingAppointment", [patient_id])
+            results = []
+            for result in cursor.stored_results():
+                results.extend(result.fetchall())
+            return results[0] if results else None

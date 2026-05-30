@@ -27,8 +27,13 @@ class AppointmentBLL:
                 minutes = (total_seconds % 3600) // 60
                 formatted["appointment_time"] = f"{hours:02d}:{minutes:02d}"
             else:
-                t_str = str(t)
-                if len(t_str) > 5:
+                t_str = str(t).strip()
+                if t_str.isdigit():
+                    total_seconds = int(t_str)
+                    hours = total_seconds // 3600
+                    minutes = (total_seconds % 3600) // 60
+                    formatted["appointment_time"] = f"{hours:02d}:{minutes:02d}"
+                elif len(t_str) > 5:
                     formatted["appointment_time"] = t_str[:5]
                 else:
                     formatted["appointment_time"] = t_str
@@ -150,4 +155,13 @@ class AppointmentBLL:
             raise KeyError(f"ID: {app_id} olan randevu bulunamadı.")
 
         return AppointmentDAL.delete_appointment(app_id)
+
+    @staticmethod
+    def get_upcoming_appointment(patient_id: str) -> dict:
+        if not patient_id or not patient_id.strip():
+            raise ValueError("Hasta ID boş bırakılamaz.")
+        app = AppointmentDAL.get_upcoming_appointment(patient_id)
+        if not app:
+            return None
+        return AppointmentBLL._format_appointment(app)
 

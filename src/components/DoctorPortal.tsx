@@ -696,7 +696,7 @@ export default function DoctorPortal({
     return DAL_execute_sp_InsertAppointment(newApp);
   };
 
-  const BLL_DispatchNotification = (title: string, message: string) => {
+  const BLL_DispatchNotification = async (title: string, message: string) => {
     if (!activePatient) {
       toast.error("Lütfen önce bir hasta seçiniz!");
       return false;
@@ -709,18 +709,38 @@ export default function DoctorPortal({
       return false;
     }
 
-    const newNotif: PostOpNotification = {
-      id: `NOT-${Math.floor(300 + Math.random() * 700)}`,
-      patientId: activePatient.id,
-      patientName: activePatient.name,
+    const payload = {
+      patient_id: activePatient.id,
       title: title,
       message: message,
-      date: new Date().toISOString().replace('T', ' ').substring(0, 16),
-      sentBy: doctorProfile.name,
+      notification_date: new Date().toISOString(),
+      sent_by_doctor_id: currentUser?.id || doctorProfile.user_id || 'DOC-201',
       status: 'Gönderildi'
     };
 
-    return DAL_execute_sp_InsertNotification(newNotif);
+    appendLog('Data Access (DAL)', 'CALL sp_InsertPostOpNotification', `Parametreler: patient_id='${payload.patient_id}', title='${payload.title}'`);
+    try {
+      const response = await fetch('http://localhost:8000/post_op_notifications/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        appendLog('Data Access (DAL)', 'sp_InsertPostOpNotification [SUCCESS]', `Post-Op bildirim kaydı Stored Procedure ve API ile veritabanına eklendi.`);
+        return true;
+      } else {
+        const err = await response.json();
+        appendLog('Data Access (DAL)', 'sp_InsertPostOpNotification [FAIL]', `API Hatası: ${JSON.stringify(err)}`);
+        toast.error(`Bildirim gönderilemedi: ${err.detail || JSON.stringify(err)}`);
+        return false;
+      }
+    } catch (err) {
+      console.error(err);
+      appendLog('Data Access (DAL)', 'sp_InsertPostOpNotification [FAIL]', `Ağ Hatası: ${err}`);
+      toast.error("Bildirim gönderilirken bir bağlantı hatası oluştu.");
+      return false;
+    }
   };
 
   // ----------------------------------------------------------------------
@@ -821,11 +841,43 @@ export default function DoctorPortal({
     }
   };
 
+  const fetchPostOpNotifications = async (patientId: string) => {
+    try {
+      appendLog('Data Access (DAL)', 'CALL sp_GetPostOpNotification', `Parametreler: patient_id='${patientId}'`);
+      const response = await fetch(`http://localhost:8000/post_op_notifications/${patientId}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          const mapped: PostOpNotification[] = data.map((notif: any) => {
+            const docObj = mockUsers.find((u: any) => u.id === notif.sent_by_doctor_id);
+            const doctorName = docObj ? docObj.name : (doctorProfile.name || 'Hekim');
+            return {
+              id: notif.id,
+              patientId: notif.patient_id,
+              patientName: activePatient ? activePatient.name : 'Hasta',
+              title: notif.title,
+              message: notif.message,
+              date: notif.notification_date ? notif.notification_date.replace('T', ' ').substring(0, 16) : '',
+              sentBy: doctorName,
+              status: notif.status || 'Gönderildi'
+            };
+          });
+          setNotificationsList(mapped);
+          localStorage.setItem('dentsai_notifications_v2', JSON.stringify(mapped));
+          appendLog('Data Access (DAL)', 'sp_GetPostOpNotification [SUCCESS]', `Veritabanından ${mapped.length} adet bildirim kaydı çekildi.`);
+        }
+      }
+    } catch (err) {
+      console.error("Post-Op bildirimleri çekilirken hata:", err);
+    }
+  };
+
   useEffect(() => {
     if (activePatient?.id) {
       fetchPatientTeethData(activePatient.id);
       fetchToothTreatments(activePatient.id);
       fetchTreatmentStages(activePatient.id);
+      fetchPostOpNotifications(activePatient.id);
     }
   }, [activePatient?.id]);
 
@@ -1168,17 +1220,18 @@ export default function DoctorPortal({
   };
 
   // Dispatch Notification
-  const handleSendNotificationSubmit = (e: React.FormEvent) => {
+  const handleSendNotificationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activePatient) {
       toast.error("Lütfen önce bir hasta seçiniz!");
       return;
     }
-    const success = BLL_DispatchNotification(notifTitle, notifMessage);
+    const success = await BLL_DispatchNotification(notifTitle, notifMessage);
     if (success) {
       toast.success(`Bildirim başarıyla '${activePatient.name}' adlı hastamıza iletildi!`);
       setNotifTitle('İşlem Sonrası Öneriler');
       setNotifMessage('');
+      await fetchPostOpNotifications(activePatient.id);
     }
   };
 

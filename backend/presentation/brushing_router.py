@@ -11,7 +11,7 @@ class BrushingLogCreateSchema(BaseModel):
     log_time: str = Field(..., description="HH:MM")
     duration_seconds: int = Field(..., ge=1)
     completed: Optional[bool] = True
-    score: int = Field(..., ge=0, le=100)
+    score: Optional[int] = 0
     period: Optional[str] = "Sabah"
     floss_used: Optional[bool] = False
     tongue_brushed: Optional[bool] = False

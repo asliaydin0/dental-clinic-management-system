@@ -35,7 +35,9 @@ import {
   Volume2,
   VolumeX,
   Trash2,
-  TrendingUp
+  TrendingUp,
+  X,
+  Inbox
 } from 'lucide-react';
 import { ToothDetails, BrushingLog, AnalysisFile, ToothStatus, TreatmentType } from '../types';
 import { BRUSHING_STEPS } from '../data';
@@ -165,6 +167,7 @@ export default function PatientPortal({
   const [toasts, setToasts] = useState<CustomToast[]>([]);
   const [showNotificationsDropdown, setShowNotificationsDropdown] = useState(false);
   const [showRoadmap, setShowRoadmap] = useState(false);
+  const [showNotificationsModal, setShowNotificationsModal] = useState(false);
 
   // Profile Edit Fields States
   const [isEditing, setIsEditing] = useState(false);
@@ -401,7 +404,7 @@ export default function PatientPortal({
 
       // 5. Fetch upcoming appointment from DB
       try {
-        const upcomingRes = await fetch(`http://localhost:8000/patients/${currentUser.id}/upcoming_appointment`);
+        const upcomingRes = await fetch(`http://localhost:8000/appointments/upcoming/${currentUser.id}`);
         if (upcomingRes.ok) {
           const upcomingAppDetail = await upcomingRes.json();
           setUpcomingApp(upcomingAppDetail);
@@ -479,6 +482,10 @@ export default function PatientPortal({
         triggerToast("Diş fırçalama seansınız günlüğünüze eklendi!", "success");
         fetchBrushingLogs();
         fetchPatientData();
+        setNewBrushDuration(120);
+        setNewBrushPeriod('Sabah');
+        setFlossUsed(true);
+        setTongueBrushed(true);
       } else {
         triggerToast("Seans kaydedilemedi. Sunucu hatası.", "warning");
       }
@@ -1166,19 +1173,27 @@ export default function PatientPortal({
                             {upcomingApp.appointment_type}
                           </span>
                           <span className="text-rose-500 font-mono text-[11px] block font-extrabold flex items-center gap-1">
-                            <Clock className="h-3.5 w-3.5 inline" /> {upcomingApp.appointment_date} @ {upcomingApp.appointment_time}
+                            <Clock className="h-3.5 w-3.5 inline" /> {upcomingApp.appointment_date} @ {upcomingApp.appointment_time ? (upcomingApp.appointment_time.includes(':') ? upcomingApp.appointment_time.substring(0, 5) : (() => {
+                              const t = parseInt(upcomingApp.appointment_time, 10);
+                              if (!isNaN(t)) {
+                                const h = Math.floor(t / 3600);
+                                const m = Math.floor((t % 3600) / 60);
+                                return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+                              }
+                              return upcomingApp.appointment_time;
+                            })()) : ''}
                           </span>
                         </div>
                       </div>
                       <p className="text-[10.5px] text-slate-400 leading-normal">
-                        {patientRecord?.primaryDentist || 'Hekiminiz'} ile {patientRecord?.clinicName || 'Klinik Şubesinde'} randevunuz planlanmıştır.
+                        Dr. {upcomingApp.doctor_name || 'Hekiminiz'} ile {upcomingApp.clinic_name || 'Klinik Şubesinde'} randevunuz planlanmıştır.
                       </p>
                     </>
                   ) : (
                     <div className="flex flex-col items-center justify-center py-4 text-center space-y-2">
                       <AlertCircle className="h-8 w-8 text-slate-400 dark:text-slate-600" />
-                      <span className={`text-xs font-bold ${isDark ? 'text-slate-450' : 'text-slate-550 text-slate-500'}`}>
-                        Yaklaşan randevunuz bulunmuyor
+                      <span className={`text-xs font-bold ${isDark ? 'text-slate-450' : 'text-slate-500'}`}>
+                        Yaklaşan randevunuz bulunmuyor.
                       </span>
                     </div>
                   )}
@@ -1621,17 +1636,19 @@ export default function PatientPortal({
                       <p className="font-semibold leading-relaxed font-sans">
                         {latestNotification
                           ? `"${latestNotification.message}"`
-                          : "Hekiminizden henüz yeni bir mesaj bulunmuyor."
+                          : "Henüz hekiminizden gelen aktif bir mesaj bulunmuyor."
                         }
                       </p>
                     </div>
                   </div>
 
                   <div className="border-t border-slate-500/10 pt-4 mt-4 flex items-center justify-between text-[11px] font-semibold">
-                    <span className="text-indigo-400 font-medium">— {patientRecord?.primaryDentist || 'Dr. Samantha Lee'}</span>
+                    <span className="text-indigo-400 font-medium">
+                      {latestNotification ? `— ${latestNotification.sentBy}` : ''}
+                    </span>
                     <button
                       onClick={() => {
-                        setShowNotificationsDropdown(true);
+                        setShowNotificationsModal(true);
                         triggerToast("Hekim bilgilendirme bildirim arşivi açıldı.", 'info');
                       }}
                       className="text-indigo-500 hover:underline cursor-pointer"
@@ -2585,6 +2602,85 @@ export default function PatientPortal({
           <p className="text-[9px] uppercase font-bold tracking-widest text-indigo-500/40">Hasta İletişim Güvenlik Altyapısı</p>
         </div>
       </footer>
+
+      {/* Notifications Detail Modal */}
+      <AnimatePresence>
+        {showNotificationsModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
+              onClick={() => setShowNotificationsModal(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className={`relative w-full max-w-2xl rounded-2xl border shadow-2xl p-6 overflow-hidden flex flex-col max-h-[85vh] ${
+                isDark ? 'bg-[#0e1626] border-[#1e293b] text-white' : 'bg-white border-slate-200 text-slate-800'
+              }`}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between border-b pb-4 mb-4">
+                <div className="flex items-center space-x-2.5">
+                  <div className="p-2 bg-indigo-500/10 text-indigo-500 rounded-xl">
+                    <MessageSquare className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className={`text-base font-bold ${textTitle}`}>Hekim Bildirim Geçmişi</h3>
+                    <p className={`text-[10px] font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                      Hekimleriniz tarafından gönderilen tüm tıbbi tavsiye ve uyarı notları
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowNotificationsModal(false)}
+                  className={`p-1.5 rounded-lg hover:bg-slate-500/10 transition-all ${isDark ? 'text-slate-400' : 'text-slate-500'}`}
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Notifications List */}
+              <div className="space-y-4 overflow-y-auto pr-1 flex-1">
+                {notifications.length > 0 ? (
+                  notifications.map((notif) => (
+                    <div
+                      key={notif.id}
+                      className={`p-4 rounded-xl border leading-relaxed ${
+                        notif.status === 'Gönderildi'
+                          ? 'bg-indigo-500/10 border-indigo-500/30'
+                          : isDark ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50 border-slate-200'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-extrabold text-sm text-indigo-500">{notif.title}</span>
+                        <span className="text-[10px] text-slate-550 font-mono">{notif.date}</span>
+                      </div>
+                      <p className={`text-[12px] leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-655'}`}>
+                        {notif.message}
+                      </p>
+                      <div className="flex items-center justify-between mt-3 pt-2 border-t border-slate-500/5 text-[11px] font-semibold text-slate-500">
+                        <span>Gönderen Hekim: <span className="text-teal-500">{notif.sentBy}</span></span>
+                        <span className={notif.status === 'Gönderildi' ? 'text-indigo-400 font-bold' : 'text-slate-450'}>
+                          Durum: {notif.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="py-12 text-center text-slate-550 flex flex-col items-center justify-center space-y-2">
+                    <Inbox className="h-8 w-8 opacity-45" />
+                    <p className="text-xs italic font-bold">Kayıtlı herhangi bir hekim bildirimi bulunmuyor.</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

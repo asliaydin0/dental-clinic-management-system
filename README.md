@@ -92,7 +92,7 @@ Sistemde veri tutarlılığı ve denetim loglarının (system_logs) yazılması 
 
 Bu proje, uçtan uca tek bir mühendis tarafından geliştirilmiştir:
 
-*   **Aslı Aydın** — *Full-Stack Software Developer & Database Architect*
+*   **ASLI AYDIN** — *Full-Stack Software Developer & Database Architect*
     *   Responsive React UI/UX tasarımı, Framer Motion animasyonları ve Recharts veri görselleştirme entegrasyonu.
     *   Vektörel SVG FDI Odontogram (Teşhis Masası) ve interaktif zaman tüneli bileşenlerinin geliştirilmesi.
     *   CSS Variables tabanlı dinamik tema / kurumsal HEX renk yayılım mimarisinin kodlanması.

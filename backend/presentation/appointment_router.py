@@ -92,3 +92,16 @@ def delete_appointment(app_id: str):
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
+@router.get("/upcoming/{patient_id}")
+def get_upcoming_appointment(patient_id: str):
+    """
+    HTTP GET: Retrieve the next upcoming appointment for a patient.
+    """
+    try:
+        app = AppointmentBLL.get_upcoming_appointment(patient_id)
+        return app
+    except ValueError as ve:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
