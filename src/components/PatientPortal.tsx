@@ -86,6 +86,27 @@ export default function PatientPortal({
   const [teeth, setTeeth] = useState<ToothDetails[]>([]);
   const [brushingLogs, setBrushingLogs] = useState<BrushingLog[]>([]);
   const [analyses, setAnalyses] = useState<AnalysisFile[]>([]);
+
+  const calculateActiveStreak = () => {
+    if (!brushingLogs || brushingLogs.length === 0) return 0;
+    const uniqueDates = new Set(brushingLogs.map(l => l.date));
+    let streak = 0;
+    const checkDate = new Date();
+    const formatDate = (d: Date) => d.toISOString().split('T')[0];
+    let dateStr = formatDate(checkDate);
+    if (!uniqueDates.has(dateStr)) {
+      checkDate.setDate(checkDate.getDate() - 1);
+      dateStr = formatDate(checkDate);
+      if (!uniqueDates.has(dateStr)) {
+        return 0;
+      }
+    }
+    while (uniqueDates.has(formatDate(checkDate))) {
+      streak++;
+      checkDate.setDate(checkDate.getDate() - 1);
+    }
+    return streak;
+  };
   const [upcomingApp, setUpcomingApp] = useState<any>(null);
 
   // Brushing Timer States
@@ -1397,7 +1418,7 @@ export default function PatientPortal({
                         <Award className="h-5 w-5 text-amber-500" />
                         <div>
                           <span className="text-[9px] text-slate-400 block leading-none font-bold uppercase">AKTİF SERİ</span>
-                          <span className="font-extrabold mt-1 block text-slate-700 dark:text-slate-100">4 Gün</span>
+                          <span className="font-extrabold mt-1 block text-slate-700 dark:text-slate-100">{calculateActiveStreak()} Gün</span>
                         </div>
                       </div>
                     </div>

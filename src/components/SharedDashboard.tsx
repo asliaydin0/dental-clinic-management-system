@@ -133,7 +133,7 @@ export default function SharedDashboard({
           </div>
           <div>
             <span className={`text-[10px] uppercase font-mono block ${textMuted}`}>YAKLAŞAN RANDEVU</span>
-            <p className={`text-base font-black ${textTitle}`}>14:30 - {activePatient ? activePatient.name : 'Randevu Yok'}</p>
+            <p className={`text-base font-black ${textTitle}`}>{activePatient ? activePatient.name : 'Randevu Yok'}</p>
           </div>
         </div>
 

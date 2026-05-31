@@ -166,6 +166,41 @@ function AppContent() {
     }
   };
 
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/users/");
+      if (response.ok) {
+        const data = await response.json();
+        setMockUsers(prev => {
+          const updated = [...prev];
+          data.forEach((usr: any) => {
+            const emailClean = usr.email.toLowerCase().trim();
+            const idx = updated.findIndex(u => u.email.toLowerCase().trim() === emailClean);
+            const userObj = {
+              id: usr.id,
+              name: usr.name,
+              email: usr.email,
+              role: usr.role,
+              clinicId: usr.clinic_id || "system",
+              isTemporaryPassword: Boolean(usr.is_temporary_password),
+              password: usr.password,
+              phone: usr.phone_number,
+              phoneNumber: usr.phone_number
+            };
+            if (idx !== -1) {
+              updated[idx] = { ...updated[idx], ...userObj };
+            } else {
+              updated.push(userObj);
+            }
+          });
+          return updated;
+        });
+      }
+    } catch (err) {
+      console.error("Kullanıcılar yüklenirken hata oluştu:", err);
+    }
+  };
+
   const fetchDoctors = async (tempPasswordMapping?: Record<string, string>, clinicId?: string) => {
     try {
       const url = clinicId ? `http://localhost:8000/doctors/?clinic_id=${clinicId}` : "http://localhost:8000/doctors/";
@@ -182,7 +217,7 @@ function AppContent() {
               id: doc.user_id,
               name: doc.name,
               email: doc.email,
-              role: 'doctor',
+              role: existing ? existing.role : 'doctor',
               clinicId: doc.clinic_id,
               isTemporaryPassword: isTemp,
               password: tempPassword,
@@ -195,7 +230,8 @@ function AppContent() {
               avatarUrl: doc.avatar_url || ''
             };
           });
-          const nonDoctors = prev.filter(u => u.role !== 'doctor');
+          const emailsInMapped = new Set(mappedDoctors.map(d => d.email.toLowerCase().trim()));
+          const nonDoctors = prev.filter(u => !emailsInMapped.has(u.email.toLowerCase().trim()));
           return [...nonDoctors, ...mappedDoctors];
         });
       }
@@ -206,6 +242,7 @@ function AppContent() {
 
   useEffect(() => {
     fetchClinics();
+    fetchUsers();
   }, []);
 
   useEffect(() => {

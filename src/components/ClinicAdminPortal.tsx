@@ -390,8 +390,8 @@ export default function ClinicAdminPortal({
                           {createdUserCredentials.pass}
                           <button
                             onClick={() => {
-                              navigator.clipboard.writeText(`Giriş: ${createdUserCredentials.email}\nŞifre: ${createdUserCredentials.pass}`);
-                              toast.success('Giriş bilgileri panoya kopyalandı.');
+                              navigator.clipboard.writeText(createdUserCredentials.pass);
+                              toast.success('Geçici şifre panoya kopyalandı.');
                             }}
                             className="text-amber-600 dark:text-amber-400 hover:text-amber-500 cursor-pointer"
                             title="Bilgileri Kopyala"

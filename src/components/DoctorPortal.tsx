@@ -253,7 +253,7 @@ export default function DoctorPortal({
           const mapped: Appointment[] = data.map((app: any) => {
             const patientObj = patientsList.find(p => p.id === app.patient_id);
             const patientName = app.patient_name || (patientObj ? patientObj.name : 'Kayıtlı Hasta');
-            
+
             const docObj = doctorsList.find(d => d.user_id === app.doctor_id) || mockUsers.find(u => u.id === app.doctor_id);
             const doctorName = app.doctor_name || (docObj ? docObj.name : (doctorProfile.name || 'Hekim'));
 
@@ -409,7 +409,7 @@ export default function DoctorPortal({
 
   useEffect(() => {
     if (doctorProfile.name) {
-      setAppointmentsList(prev => 
+      setAppointmentsList(prev =>
         prev.map(app => app.doctorName === 'Dr. Samantha Lee' ? { ...app, doctorName: doctorProfile.name } : app)
       );
       setNotificationsList(prev =>
@@ -1433,90 +1433,90 @@ export default function DoctorPortal({
 
       {/* 1. ÜST HEADER BAR (Hekim Profil Bilgileri / Tema Seçimi / Randevu Özetleri) */}
       {!hideSidebar && (
-      <header className={`h-[72px] ${bgSidebar} px-6 flex items-center justify-between border-b ${borderLine} sticky top-0 z-40 shrink-0 transition-all duration-200 shadow-sm`}>
+        <header className={`h-[72px] ${bgSidebar} px-6 flex items-center justify-between border-b ${borderLine} sticky top-0 z-40 shrink-0 transition-all duration-200 shadow-sm`}>
 
-        {/* Klinik Logo ve Bilgisi */}
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className={`lg:hidden p-2 rounded-xl border transition-all cursor-pointer ${isDark
-              ? 'bg-[#121c2c] hover:bg-[#1e2f46] text-indigo-300 border-[#1f3048]'
-              : 'bg-slate-50 hover:bg-slate-100 text-indigo-600 border-slate-200/80 shadow-sm'
-              }`}
-            title="Menüyü Aç/Kapa"
-          >
-            <Menu className="h-4 w-4" />
-          </button>
-          <div className="bg-gradient-to-tr from-indigo-500 to-sky-400 p-2.5 rounded-xl text-white shadow-lg shadow-indigo-500/15 hover:scale-105 transition-transform">
-            <BriefcaseMedical className="h-5 w-5 animate-pulse" />
-          </div>
-          <div className="flex flex-col">
-            <span className={`text-sm font-black tracking-widest uppercase ${textTitle}`}>DisAsistanım AI</span>
-            <span className="text-[9px] font-bold text-indigo-500 tracking-wider font-mono">DOKTOR KLİNİK PANELİ v4.0</span>
-          </div>
-        </div>
-
-        {/* Çalışma Süresi & Aktif Hasta Göstergeleri */}
-        <div className="hidden md:flex items-center space-x-4 bg-indigo-500/10 border border-indigo-500/20 px-4 py-2 rounded-xl">
-          <div className="flex items-center space-x-1.5 text-indigo-400">
-            <Clock className="h-4 w-4 animate-spin-slow text-indigo-500" />
-            <span className="text-xs font-black font-mono leading-none">{formatTrackerTime(trackerSeconds)}</span>
-          </div>
-          <span className="text-slate-500 text-xs font-bold font-mono">|</span>
-          <div className="flex items-center space-x-1">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-            <span className="text-[10px] text-emerald-500 font-extrabold font-mono uppercase">HEKİM SEANSI AKTİF</span>
-          </div>
-        </div>
-
-        {/* Aksiyon Sağ Araç Çubuğu */}
-        <div className="flex items-center space-x-3">
-
-          {/* TEMA DEĞİŞTİRME BUTONU (AKTİFLEŞTİRİLDİ) */}
-          <button
-            onClick={() => setTheme?.(isDark ? 'light' : 'dark')}
-            className={`p-2.5 rounded-xl border flex items-center justify-center transition-all cursor-pointer ${isDark
-              ? 'bg-[#121c2c] hover:bg-[#18273d] text-amber-400 border-[#1f3048]'
-              : 'bg-white hover:bg-slate-100 text-indigo-600 border-slate-200 shadow-sm'
-              }`}
-            title={isDark ? 'Aydınlık Moda Geç' : 'Karanlık Moda Geç'}
-          >
-            {isDark ? (
-              <Sun className="h-4 w-4 animate-spin text-amber-400" />
-            ) : (
-              <Moon className="h-4 w-4 text-indigo-600" />
-            )}
-          </button>
-
-          {/* Hızlı Bildirim Zili */}
-          <div
-            className={`relative p-2.5 rounded-xl border cursor-pointer transition-all ${isDark ? 'bg-[#121c2c] hover:bg-[#1e2f46] text-indigo-300 border-[#1f3048]' : 'bg-slate-50 hover:bg-slate-100 text-indigo-600 border-slate-200'}`}
-            onClick={() => {
-              appendLog('Presentation (UI)', 'Bildirim Zili Tıklandı', 'Kritik alarm tablosu gözden geçiriliyor.');
-              toast.info("Klinik Alarm Sistemi: Sistem bağlantısı stabil, yeni acil çağrı mevcut değildir.");
-            }}
-          >
-            <Bell className="h-4 w-4 text-indigo-500" />
-            <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 bg-rose-500 rounded-full animate-ping"></span>
-          </div>
-
-          {/* Hekim Kimliği */}
-          <div className="flex items-center space-x-2.5 border-l border-slate-600/20 pl-3">
-            <Avatar
-              url={doctorProfile.avatarUrl}
-              name={doctorProfile.name}
-              className="h-8 w-8 rounded-xl border-2 border-indigo-500 shadow-md"
-              iconClassName="h-4 w-4"
-            />
-            <div className="hidden sm:block text-left">
-              <p className={`text-xs font-black leading-none ${textTitle}`}>{doctorProfile.name}</p>
-              <p className="text-[9px] text-indigo-500 font-bold font-mono tracking-wider mt-0.5 uppercase">KAYITLI HEKİM</p>
+          {/* Klinik Logo ve Bilgisi */}
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className={`lg:hidden p-2 rounded-xl border transition-all cursor-pointer ${isDark
+                ? 'bg-[#121c2c] hover:bg-[#1e2f46] text-indigo-300 border-[#1f3048]'
+                : 'bg-slate-50 hover:bg-slate-100 text-indigo-600 border-slate-200/80 shadow-sm'
+                }`}
+              title="Menüyü Aç/Kapa"
+            >
+              <Menu className="h-4 w-4" />
+            </button>
+            <div className="bg-gradient-to-tr from-indigo-500 to-sky-400 p-2.5 rounded-xl text-white shadow-lg shadow-indigo-500/15 hover:scale-105 transition-transform">
+              <BriefcaseMedical className="h-5 w-5 animate-pulse" />
+            </div>
+            <div className="flex flex-col">
+              <span className={`text-sm font-black tracking-widest uppercase ${textTitle}`}>DisAsistanım AI</span>
+              <span className="text-[9px] font-bold text-indigo-500 tracking-wider font-mono">DOKTOR KLİNİK PANELİ v4.0</span>
             </div>
           </div>
 
-        </div>
+          {/* Çalışma Süresi & Aktif Hasta Göstergeleri */}
+          <div className="hidden md:flex items-center space-x-4 bg-indigo-500/10 border border-indigo-500/20 px-4 py-2 rounded-xl">
+            <div className="flex items-center space-x-1.5 text-indigo-400">
+              <Clock className="h-4 w-4 animate-spin-slow text-indigo-500" />
+              <span className="text-xs font-black font-mono leading-none">{formatTrackerTime(trackerSeconds)}</span>
+            </div>
+            <span className="text-slate-500 text-xs font-bold font-mono">|</span>
+            <div className="flex items-center space-x-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+              <span className="text-[10px] text-emerald-500 font-extrabold font-mono uppercase">HEKİM SEANSI AKTİF</span>
+            </div>
+          </div>
 
-      </header>
+          {/* Aksiyon Sağ Araç Çubuğu */}
+          <div className="flex items-center space-x-3">
+
+            {/* TEMA DEĞİŞTİRME BUTONU (AKTİFLEŞTİRİLDİ) */}
+            <button
+              onClick={() => setTheme?.(isDark ? 'light' : 'dark')}
+              className={`p-2.5 rounded-xl border flex items-center justify-center transition-all cursor-pointer ${isDark
+                ? 'bg-[#121c2c] hover:bg-[#18273d] text-amber-400 border-[#1f3048]'
+                : 'bg-white hover:bg-slate-100 text-indigo-600 border-slate-200 shadow-sm'
+                }`}
+              title={isDark ? 'Aydınlık Moda Geç' : 'Karanlık Moda Geç'}
+            >
+              {isDark ? (
+                <Sun className="h-4 w-4 animate-spin text-amber-400" />
+              ) : (
+                <Moon className="h-4 w-4 text-indigo-600" />
+              )}
+            </button>
+
+            {/* Hızlı Bildirim Zili */}
+            <div
+              className={`relative p-2.5 rounded-xl border cursor-pointer transition-all ${isDark ? 'bg-[#121c2c] hover:bg-[#1e2f46] text-indigo-300 border-[#1f3048]' : 'bg-slate-50 hover:bg-slate-100 text-indigo-600 border-slate-200'}`}
+              onClick={() => {
+                appendLog('Presentation (UI)', 'Bildirim Zili Tıklandı', 'Kritik alarm tablosu gözden geçiriliyor.');
+                toast.info("Klinik Alarm Sistemi: Sistem bağlantısı stabil, yeni acil çağrı mevcut değildir.");
+              }}
+            >
+              <Bell className="h-4 w-4 text-indigo-500" />
+              <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 bg-rose-500 rounded-full animate-ping"></span>
+            </div>
+
+            {/* Hekim Kimliği */}
+            <div className="flex items-center space-x-2.5 border-l border-slate-600/20 pl-3">
+              <Avatar
+                url={doctorProfile.avatarUrl}
+                name={doctorProfile.name}
+                className="h-8 w-8 rounded-xl border-2 border-indigo-500 shadow-md"
+                iconClassName="h-4 w-4"
+              />
+              <div className="hidden sm:block text-left">
+                <p className={`text-xs font-black leading-none ${textTitle}`}>{doctorProfile.name}</p>
+                <p className="text-[9px] text-indigo-500 font-bold font-mono tracking-wider mt-0.5 uppercase">KAYITLI HEKİM</p>
+              </div>
+            </div>
+
+          </div>
+
+        </header>
       )}
 
       {/* 2. ANA LOGIC BODY (Sol Panel Menüsü ve Sağ Çoklu Tab Görünümleri) */}
@@ -1526,117 +1526,117 @@ export default function DoctorPortal({
         {!hideSidebar && (
           <>
             <AnimatePresence>
-          {sidebarOpen && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.5 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSidebarOpen(false)}
-              className="lg:hidden fixed inset-0 bg-slate-950/40 z-40 backdrop-blur-sm"
-            />
-          )}
-        </AnimatePresence>
+              {sidebarOpen && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.5 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setSidebarOpen(false)}
+                  className="lg:hidden fixed inset-0 bg-slate-950/40 z-40 backdrop-blur-sm"
+                />
+              )}
+            </AnimatePresence>
 
-        {/* SOL PANEL (Bölüm Seçimleri) */}
-        <aside className={`fixed inset-y-0 left-0 lg:relative z-50 lg:z-auto w-[245px] ${bgSidebar} flex flex-col justify-between shrink-0 transition-transform lg:translate-x-0 duration-300 border-r h-full ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:flex'}`}>
+            {/* SOL PANEL (Bölüm Seçimleri) */}
+            <aside className={`fixed inset-y-0 left-0 lg:relative z-50 lg:z-auto w-[245px] ${bgSidebar} flex flex-col justify-between shrink-0 transition-transform lg:translate-x-0 duration-300 border-r h-full ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:flex'}`}>
 
-          <div className="p-4 space-y-5">
+              <div className="p-4 space-y-5">
 
-            {/* Mobil Menü Kapatma Butonu */}
-            <div className="flex lg:hidden items-center justify-between border-b pb-2.5 border-slate-700/10 mb-2">
-              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Gezinti Menüsü</span>
-              <button
-                onClick={() => setSidebarOpen(false)}
-                className={`p-1.5 rounded-lg border ${isDark ? 'bg-[#152033] border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'} cursor-pointer`}
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* Klinik Seçimi */}
-            <div className={`p-3 rounded-2xl ${isDark ? 'bg-[#152033] border-[#1e2e4b]' : 'bg-slate-50 border-slate-200'} border`}>
-              <span className="text-[9px] font-mono font-black text-indigo-500 tracking-wider uppercase block">AKTİF KLİNİK ADI</span>
-              <p className={`text-xs font-black truncate mt-1 ${textTitle}`}>{currentClinic.name}</p>
-            </div>
-
-            {/* Bölüm Linkleri (Pages / Tabs) */}
-            <div className="space-y-1">
-              {[
-                { label: 'Genel Bakış', icon: Activity },
-                { label: 'Hasta Kayıt & Listesi', icon: UserRoundCheck, badge: (patientsList || []).length.toString() },
-                { label: 'Tedavi & Teşhis Masası', icon: BriefcaseMedical },
-                { label: 'Randevu Defteri', icon: Calendar, badge: (appointmentsList || []).filter(a => a?.status === 'Bekliyor').length.toString() },
-                { label: 'Profilim', icon: User },
-              ].map((menu) => {
-                const Icon = menu.icon;
-                const isSelected = activeMenu === menu.label;
-                return (
+                {/* Mobil Menü Kapatma Butonu */}
+                <div className="flex lg:hidden items-center justify-between border-b pb-2.5 border-slate-700/10 mb-2">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Gezinti Menüsü</span>
                   <button
-                    key={menu.label}
-                    onClick={() => {
-                      setActiveMenu(menu.label);
-                      setSidebarOpen(false);
-                      appendLog('Presentation (UI)', `Sol Menü Tıklandı: ${menu.label}`, `Tab '${menu.label}' görünümüne geçiş yapıldı.`);
-                    }}
-                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${isSelected
-                      ? 'bg-gradient-to-r from-indigo-500/15 to-transparent text-indigo-400 border-l-[3.5px] border-indigo-500 font-black'
-                      : isDark
-                        ? 'text-[#6e85a5] hover:text-white hover:bg-[#121c2c]'
-                        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
-                      }`}
+                    onClick={() => setSidebarOpen(false)}
+                    className={`p-1.5 rounded-lg border ${isDark ? 'bg-[#152033] border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'} cursor-pointer`}
                   >
-                    <div className="flex items-center space-x-2.5">
-                      <Icon className={`h-4 w-4 ${isSelected ? 'text-indigo-400' : 'text-slate-500'}`} />
-                      <span>{menu.label}</span>
-                    </div>
-                    {menu.badge && (
-                      <span className="text-[9px] bg-indigo-500/15 text-indigo-500 border border-indigo-500/30 px-1.5 py-0.2 rounded font-mono font-bold leading-none">{menu.badge}</span>
-                    )}
+                    <X className="h-4 w-4" />
                   </button>
-                );
-              })}
-            </div>
+                </div>
 
-          </div>
+                {/* Klinik Seçimi */}
+                <div className={`p-3 rounded-2xl ${isDark ? 'bg-[#152033] border-[#1e2e4b]' : 'bg-slate-50 border-slate-200'} border`}>
+                  <span className="text-[9px] font-mono font-black text-indigo-500 tracking-wider uppercase block">AKTİF KLİNİK ADI</span>
+                  <p className={`text-xs font-black truncate mt-1 ${textTitle}`}>{currentClinic.name}</p>
+                </div>
 
-          {/* Sol Alt Sabit Aksiyonlar */}
-          <div className={`p-4 border-t ${borderLine} space-y-2`}>
+                {/* Bölüm Linkleri (Pages / Tabs) */}
+                <div className="space-y-1">
+                  {[
+                    { label: 'Genel Bakış', icon: Activity },
+                    { label: 'Hasta Kayıt & Listesi', icon: UserRoundCheck, badge: (patientsList || []).length.toString() },
+                    { label: 'Tedavi & Teşhis Masası', icon: BriefcaseMedical },
+                    { label: 'Randevu Defteri', icon: Calendar, badge: (appointmentsList || []).filter(a => a?.status === 'Bekliyor').length.toString() },
+                    { label: 'Profilim', icon: User },
+                  ].map((menu) => {
+                    const Icon = menu.icon;
+                    const isSelected = activeMenu === menu.label;
+                    return (
+                      <button
+                        key={menu.label}
+                        onClick={() => {
+                          setActiveMenu(menu.label);
+                          setSidebarOpen(false);
+                          appendLog('Presentation (UI)', `Sol Menü Tıklandı: ${menu.label}`, `Tab '${menu.label}' görünümüne geçiş yapıldı.`);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${isSelected
+                          ? 'bg-gradient-to-r from-indigo-500/15 to-transparent text-indigo-400 border-l-[3.5px] border-indigo-500 font-black'
+                          : isDark
+                            ? 'text-[#6e85a5] hover:text-white hover:bg-[#121c2c]'
+                            : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                          }`}
+                      >
+                        <div className="flex items-center space-x-2.5">
+                          <Icon className={`h-4 w-4 ${isSelected ? 'text-indigo-400' : 'text-slate-500'}`} />
+                          <span>{menu.label}</span>
+                        </div>
+                        {menu.badge && (
+                          <span className="text-[9px] bg-indigo-500/15 text-indigo-500 border border-indigo-500/30 px-1.5 py-0.2 rounded font-mono font-bold leading-none">{menu.badge}</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
 
-            <button
-              onClick={() => {
-                const dump = {
-                  patients: patientsList,
-                  appointments: appointmentsList,
-                  notifications: notificationsList,
-                  teethLogs: patientTeeth
-                };
-                const blob = new Blob([JSON.stringify(dump, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `klinik_n_katman_yedek_${new Date().toISOString().split('T')[0]}.json`;
-                a.click();
-                appendLog('Presentation (UI)', 'Sistem Veri Yedeği İndirildi', 'Veritabanı dökümü JSON biçiminde dışa aktarıldı.');
-              }}
-              className={`w-full py-2 px-3 rounded-xl text-[10px] font-black flex items-center justify-center gap-1.5 transition-all border cursor-pointer ${isDark
-                ? 'bg-[#101b2b] hover:bg-indigo-500 hover:text-slate-950 text-indigo-400 border-[#1c304f]'
-                : 'bg-slate-50 hover:bg-indigo-500 hover:text-white text-slate-700 border-slate-200'
-                }`}
-            >
-              <Download className="h-3.5 w-3.5" />
-              Veritabanı Klasörünü Yedekle
-            </button>
+              </div>
 
-            <button
-              onClick={onExit}
-              className="w-full bg-rose-500/15 hover:bg-rose-600 hover:text-white text-rose-400 border border-rose-500/30 py-2.5 px-3 rounded-xl text-[10px] font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-            >
-              <Power className="h-3.5 w-3.5 font-bold" />
-              Arayüzden Çıkış Yap
-            </button>
-          </div>
+              {/* Sol Alt Sabit Aksiyonlar */}
+              <div className={`p-4 border-t ${borderLine} space-y-2`}>
 
-        </aside>
+                <button
+                  onClick={() => {
+                    const dump = {
+                      patients: patientsList,
+                      appointments: appointmentsList,
+                      notifications: notificationsList,
+                      teethLogs: patientTeeth
+                    };
+                    const blob = new Blob([JSON.stringify(dump, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `klinik_n_katman_yedek_${new Date().toISOString().split('T')[0]}.json`;
+                    a.click();
+                    appendLog('Presentation (UI)', 'Sistem Veri Yedeği İndirildi', 'Veritabanı dökümü JSON biçiminde dışa aktarıldı.');
+                  }}
+                  className={`w-full py-2 px-3 rounded-xl text-[10px] font-black flex items-center justify-center gap-1.5 transition-all border cursor-pointer ${isDark
+                    ? 'bg-[#101b2b] hover:bg-indigo-500 hover:text-slate-950 text-indigo-400 border-[#1c304f]'
+                    : 'bg-slate-50 hover:bg-indigo-500 hover:text-white text-slate-700 border-slate-200'
+                    }`}
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Veritabanı Klasörünü Yedekle
+                </button>
+
+                <button
+                  onClick={onExit}
+                  className="w-full bg-rose-500/15 hover:bg-rose-600 hover:text-white text-rose-400 border border-rose-500/30 py-2.5 px-3 rounded-xl text-[10px] font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <Power className="h-3.5 w-3.5 font-bold" />
+                  Sistemden Çıkış Yap
+                </button>
+              </div>
+
+            </aside>
           </>
         )}
 
@@ -1666,7 +1666,7 @@ export default function DoctorPortal({
                 </div>
 
                 <p className={`text-xs ${textMuted}`}>
-                  Yeni hasta hesabı veri tabanına Stored Procedure aracılığıyla başarıyla işlenmiştir. Hastanın ilk girişi için geçici erişim anahtarı aşağıdadır:
+                  Yeni hasta kaydı sisteme başarıyla eklenmiştir. Hastanın sisteme ilk girişte kullanması gereken geçici şifre aşağıdadır:
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-emerald-50/50 dark:bg-[#0d1522] border border-emerald-200 dark:border-emerald-900/30 p-3.5 rounded-xl text-xs font-semibold">
@@ -1689,8 +1689,8 @@ export default function DoctorPortal({
                     </div>
                     <button
                       onClick={() => {
-                        navigator.clipboard.writeText(`Giriş Bilgileri:\nT.C: ${credentialsModal.tc}\nE-posta: ${credentialsModal.email}\nŞifre: ${credentialsModal.pass}`);
-                        toast.success("Giriş bilgileri panoya kopyalandı!");
+                        navigator.clipboard.writeText(credentialsModal.pass);
+                        toast.success("Geçici şifre panoya kopyalandı!");
                       }}
                       className="text-amber-400 hover:text-amber-200 p-1 bg-amber-500/10 rounded"
                       title="Kopyala"
@@ -2188,7 +2188,7 @@ export default function DoctorPortal({
                       const toothInfo = patientTeeth.find(t => t.id === id) || { status: 'healthy' as ToothStatus, name: 'Tanımsız', notes: '' };
                       const isFocused = selectedToothId === id;
                       const digit = id % 10;
-                      
+
                       let w = 20;
                       let h = 44;
                       if (digit >= 6) { w = 32; h = 48; }
@@ -2238,7 +2238,7 @@ export default function DoctorPortal({
                               />
                               {digit >= 4 && (
                                 <path
-                                  d={`M ${w/2},${h/3} L ${w/2},${2*h/3}`}
+                                  d={`M ${w / 2},${h / 3} L ${w / 2},${2 * h / 3}`}
                                   stroke={isDark ? '#1e293b' : '#94a3b8'}
                                   strokeWidth={1}
                                   strokeDasharray="2,2"
@@ -2260,40 +2260,40 @@ export default function DoctorPortal({
                       <div className="w-full flex flex-col items-center py-4 select-none">
                         <div className="w-full overflow-x-auto pb-4 pt-2">
                           <div className="min-w-[620px] flex flex-col items-center space-y-6">
-                            
+
                             {/* Upper Row (Maxilla) */}
                             <div className="flex items-center space-x-1 relative">
                               <span className="absolute -left-16 text-[8px] font-black text-slate-500 tracking-wider">MAXILLA</span>
-                              
+
                               {/* Left side (18 - 11) */}
                               <div className="flex items-end space-x-1.5">
                                 {[18, 17, 16, 15, 14, 13, 12, 11].map(id => renderOdontogramTooth(id, true))}
                               </div>
-                              
+
                               {/* Midline divider */}
                               <div className="w-[2px] h-20 border-l-2 border-dashed border-indigo-500/30 mx-2 self-center"></div>
-                              
+
                               {/* Right side (21 - 28) */}
                               <div className="flex items-end space-x-1.5">
                                 {[21, 22, 23, 24, 25, 26, 27, 28].map(id => renderOdontogramTooth(id, true))}
                               </div>
                             </div>
-                            
+
                             {/* Midline Horizontal divider */}
                             <div className="w-[90%] h-[1px] border-t border-dashed border-slate-700/10 dark:border-slate-800 my-1"></div>
 
                             {/* Lower Row (Mandibula) */}
                             <div className="flex items-center space-x-1 relative">
                               <span className="absolute -left-16 text-[8px] font-black text-slate-500 tracking-wider">MANDIBULA</span>
-                              
+
                               {/* Left side (48 - 41) */}
                               <div className="flex items-start space-x-1.5">
                                 {[48, 47, 46, 45, 44, 43, 42, 41].map(id => renderOdontogramTooth(id, false))}
                               </div>
-                              
+
                               {/* Midline divider */}
                               <div className="w-[2px] h-20 border-l-2 border-dashed border-indigo-500/30 mx-2 self-center"></div>
-                              
+
                               {/* Right side (31 - 38) */}
                               <div className="flex items-start space-x-1.5">
                                 {[31, 32, 33, 34, 35, 36, 37, 38].map(id => renderOdontogramTooth(id, false))}
@@ -2743,9 +2743,8 @@ export default function DoctorPortal({
                                 setSelectedAppForAction(app);
                                 setShowActionModal(true);
                               }}
-                              className={`border-b ${borderLine} text-xs font-semibold leading-relaxed cursor-pointer transition-colors ${
-                                isDark ? 'hover:bg-[#121c2c] text-slate-350' : 'hover:bg-slate-50 text-slate-700'
-                              }`}
+                              className={`border-b ${borderLine} text-xs font-semibold leading-relaxed cursor-pointer transition-colors ${isDark ? 'hover:bg-[#121c2c] text-slate-350' : 'hover:bg-slate-50 text-slate-700'
+                                }`}
                             >
                               <td className="py-3 font-bold">{app.patientName}</td>
                               <td className="py-3 font-bold text-indigo-400">{app.doctorName}</td>
@@ -2758,17 +2757,17 @@ export default function DoctorPortal({
                                   style={
                                     app.status === 'Bekliyor'
                                       ? {
-                                          color: 'var(--color-clinic-accent, #6366f1)',
-                                          borderColor: 'color-mix(in srgb, var(--color-clinic-accent, #6366f1) 20%, transparent)',
-                                          backgroundColor: 'color-mix(in srgb, var(--color-clinic-accent, #6366f1) 12%, transparent)'
-                                        }
+                                        color: 'var(--color-clinic-accent, #6366f1)',
+                                        borderColor: 'color-mix(in srgb, var(--color-clinic-accent, #6366f1) 20%, transparent)',
+                                        backgroundColor: 'color-mix(in srgb, var(--color-clinic-accent, #6366f1) 12%, transparent)'
+                                      }
                                       : app.status === 'Tamamlandı'
-                                      ? {
+                                        ? {
                                           color: '#10b981',
                                           borderColor: 'rgba(16, 185, 129, 0.2)',
                                           backgroundColor: 'rgba(16, 185, 129, 0.12)'
                                         }
-                                      : {
+                                        : {
                                           color: '#f43f5e',
                                           borderColor: 'rgba(244, 63, 94, 0.2)',
                                           backgroundColor: 'rgba(244, 63, 94, 0.12)'
@@ -3348,17 +3347,17 @@ export default function DoctorPortal({
                           style={
                             selectedAppForAction.status === 'Bekliyor'
                               ? {
-                                  color: 'var(--color-clinic-accent, #6366f1)',
-                                  borderColor: 'color-mix(in srgb, var(--color-clinic-accent, #6366f1) 20%, transparent)',
-                                  backgroundColor: 'color-mix(in srgb, var(--color-clinic-accent, #6366f1) 12%, transparent)'
-                                }
+                                color: 'var(--color-clinic-accent, #6366f1)',
+                                borderColor: 'color-mix(in srgb, var(--color-clinic-accent, #6366f1) 20%, transparent)',
+                                backgroundColor: 'color-mix(in srgb, var(--color-clinic-accent, #6366f1) 12%, transparent)'
+                              }
                               : selectedAppForAction.status === 'Tamamlandı'
-                              ? {
+                                ? {
                                   color: '#10b981',
                                   borderColor: 'rgba(16, 185, 129, 0.2)',
                                   backgroundColor: 'rgba(16, 185, 129, 0.12)'
                                 }
-                              : {
+                                : {
                                   color: '#f43f5e',
                                   borderColor: 'rgba(244, 63, 94, 0.2)',
                                   backgroundColor: 'rgba(244, 63, 94, 0.12)'
@@ -3396,7 +3395,7 @@ export default function DoctorPortal({
                   {/* Actions */}
                   <div className="space-y-2">
                     <span className="text-[10px] text-slate-550 font-bold uppercase block">HIZLI AKSİYONLAR</span>
-                    
+
                     <div className="grid grid-cols-2 gap-3">
                       <button
                         onClick={() => handleUpdateAppStatus(selectedAppForAction.id, 'Tamamlandı')}
@@ -3416,9 +3415,8 @@ export default function DoctorPortal({
 
                     <button
                       onClick={() => handleUpdateAppStatus(selectedAppForAction.id, 'Bekliyor')}
-                      className={`w-full py-2.5 px-4 rounded-xl border text-xs font-extrabold transition-all cursor-pointer ${
-                        isDark ? 'bg-slate-850 hover:bg-slate-800 text-slate-200 border-slate-700' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300'
-                      }`}
+                      className={`w-full py-2.5 px-4 rounded-xl border text-xs font-extrabold transition-all cursor-pointer ${isDark ? 'bg-slate-850 hover:bg-slate-800 text-slate-200 border-slate-700' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300'
+                        }`}
                     >
                       Bekliyor Konumuna Al
                     </button>

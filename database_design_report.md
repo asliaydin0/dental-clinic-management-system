@@ -1,5 +1,4 @@
-# T.C. ÜNİVERSİTESİ
-## BİLGİSAYAR MÜHENDİSLİĞİ BÖLÜMÜ
+
 ### VERİTABANI YÖNETİM SİSTEMLERİ DERSİ FİNAL PROJESİ RAPORU
 
 ---
@@ -7,7 +6,6 @@
 **Proje Adı:** DentsAI - Yapay Zeka Destekli Diş Kliniği Otomasyonu  
 **Geliştirici:** Aslı AYDIN  
 **Proje Rolü:** Full-Stack Developer & Veritabanı Mimarı  
-**Tarih:** 29 Mayıs 2026  
 
 ---
 

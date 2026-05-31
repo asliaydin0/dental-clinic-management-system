@@ -456,19 +456,19 @@ export default function UnifiedLogin({ onLoginSuccess, mockUsers, onUpdateUserPa
             {
               role: 'clinic_admin',
               label: 'Clinic Admin',
-              user: 'Kadıköy Admin',
-              email: 'group@dentgroup.com',
-              pass: 'admin',
-              badge: 'Geçici Şifre',
+              user: 'Aydın Dental Admin',
+              email: 'aydindental@gmail.com',
+              pass: '123456',
+              badge: 'Kalıcı Şifre',
               badgeColor: 'bg-amber-950 text-amber-400 border-amber-900/50'
             },
             {
               role: 'doctor',
               label: 'Doctor',
-              user: 'Dr. Ahmet',
-              email: 'ahmet@dentsai.com',
-              pass: 'doctor',
-              badge: 'Geçici Şifre',
+              user: 'Dr. Büşra Aydın',
+              email: 'busra@gmail.com',
+              pass: '123456',
+              badge: 'Kalıcı Şifre',
               badgeColor: 'bg-amber-950 text-amber-400 border-amber-900/50'
             },
             {
@@ -483,16 +483,16 @@ export default function UnifiedLogin({ onLoginSuccess, mockUsers, onUpdateUserPa
             {
               role: 'patient',
               label: 'Patient',
-              user: 'Selin Aydın',
-              email: 'selin@dentsai.com',
-              pass: 'patient',
+              user: 'Aslı Aydın',
+              email: 'asli@gmail.com',
+              pass: '123456',
               badge: 'Kalıcı Şifre',
               badgeColor: 'bg-emerald-950 text-emerald-400 border-emerald-900/50'
             }
           ].map((preset, idx) => {
             // Find current password from state to display live on the card
-            const currentObj = mockUsers.find(u => u.email === preset.email);
-            const displayPass = currentObj ? currentObj.password : preset.pass;
+            const currentObj = mockUsers.find(u => u.email.toLowerCase().trim() === preset.email.toLowerCase().trim());
+            const displayPass = (currentObj && currentObj.password) ? currentObj.password : preset.pass;
             const isTemp = currentObj ? currentObj.isTemporaryPassword : true;
 
             return (
