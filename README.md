@@ -49,7 +49,10 @@ Sistem, SaaS gereksinimlerine uygun olarak tasarlanmış olup, farklı klinikler
   <img src="img/hekim_portali_4.png" alt="Hekim Portali" width="800" style="border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);" />
 
 
-
+  <h3>👤 Hasta Portali</h3>
+  <p>İnteraktif Diş Şeması, Ağız Hijyeni Günlüğü ve Fırçalama Analiz Grafiği</p>
+  <img src="img/hasta_portali.png" alt="Hasta Portali" width="800" style="border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);" />
+  <img src="img/hasta_portali_1.png" alt="Hasta Portali" width="800" style="border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);" />
 </div>
 
 ---
