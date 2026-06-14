@@ -37,6 +37,23 @@ Sistem, SaaS gereksinimlerine uygun olarak tasarlanmış olup, farklı klinikler
 
 ---
 
+## 📸 Ekran Görüntüleri (Screenshots)
+
+<div align="center">
+  <h3>👨‍⚕️ Hekim Portali</h3>
+  <p>Gelişmiş FDI Odontogram, Randevu Yönetimi ve Bento Kart İstatistikleri</p>
+  <img src="img/hekim_portali.png" alt="Hekim Portali" width="800" style="border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);" />
+  <img src="img/hekim_portali_1.png" alt="Hekim Portali" width="800" style="border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);" />
+  <img src="img/hekim_portali_2.png" alt="Hekim Portali" width="800" style="border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);" />
+  <img src="img/hekim_portali_3.png" alt="Hekim Portali" width="800" style="border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);" />
+  <img src="img/hekim_portali_4.png" alt="Hekim Portali" width="800" style="border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);" />
+
+
+
+</div>
+
+---
+
 ## 🛠️ Kullanılan Teknolojiler (Tech Stack)
 
 ### Arayüz Katmanı (Frontend)
